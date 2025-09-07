@@ -1,0 +1,166 @@
+@import url('https://fonts.googleapis.com/css2?family=Long+Cang&display=swap');
+
+/* 全局样式 */
+body {
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+    overflow-x: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* 内容容器 */
+.content-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* 英雄区样式 */
+.hero-section {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 40px 0;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 80px;
+    left: 80px;
+    width: 288px;
+    height: 288px;
+    background: #2563eb;
+    border-radius: 50%;
+    filter: blur(48px);
+    opacity: 0.05;
+}
+
+.hero-section::after {
+    content: '';
+    position: absolute;
+    bottom: 80px;
+    right: 80px;
+    width: 384px;
+    height: 384px;
+    background: #1f2937;
+    border-radius: 50%;
+    filter: blur(48px);
+    opacity: 0.05;
+}
+
+/* 艺术字体 */
+.font-artistic {
+    font-family: 'Long Cang', cursive !important;
+    color: #2c3e50;
+    font-size: 4.5rem;
+    line-height: 1.1;
+}
+
+/* 标题与分隔线 */
+.section-title {
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: #111827;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.title-divider {
+    height: 4px;
+    width: 120px;
+    background: #2563eb;
+    margin: 0 auto 80px;
+}
+
+/* 经历卡片 */
+.experience-card {
+    background: #f9fafb;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+    transition: all 0.3s ease;
+}
+
+.experience-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    background-color: #ffffff;
+}
+
+/* 技能卡片 */
+.skill-card {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 40px 0;
+    }
+    .font-artistic {
+        font-size: 3.5rem;
+    }
+    .content-container {
+        padding: 0 16px;
+    }
+}
+
+/* 社交图标 */
+.social-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    color: #2563eb;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.social-icon:hover {
+    background-color: #f3f4f6;
+}
+
+/* 页脚样式 */
+footer {
+    background: #111827;
+    color: white;
+    padding: 80px 0;
+    margin-top: 80px;
+}
+
+.footer-content {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.footer-content h3 {
+    font-size: 1.75rem;
+    font-weight: 300;
+    margin-bottom: 20px;
+}
+
+.footer-content p {
+    color: #9ca3af;
+    max-width: 600px;
+    margin: 0 auto 40px;
+    line-height: 1.75;
+    font-size: 1.125rem;
+}
+
+.footer-bottom {
+    border-top: 1px solid #374151;
+    padding-top: 40px;
+    color: #9ca3af;
+}

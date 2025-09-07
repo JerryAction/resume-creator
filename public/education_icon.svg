@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <!-- 蓝色方形背景 -->
+  <rect width="24" height="24" rx="4" fill="#1E88E5" />
+  
+  <!-- 白色毕业帽图标 -->
+  <!-- 帽顶 -->
+  <path d="M12 4L15 7L12 10L9 7Z" fill="white" />
+  <!-- 帽身 -->
+  <rect x="6" y="7" width="12" height="4" rx="1" fill="white" />
+  <!-- 帽檐 -->
+  <path d="M6 11L12 15L18 11V10H6V11Z" fill="white" />
+  <!-- 流苏 -->
+  <line x1="15" y1="7" x2="18" y2="14" stroke="white" stroke-width="1.5" />
+  <path d="M18 14C18.55 14 19 13.55 19 13C19 12.45 18.55 12 18 12C17.45 12 17 12.45 17 13C17 13.55 17.45 14 18 14Z" fill="white" />
+</svg>

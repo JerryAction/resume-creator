@@ -1,0 +1,104 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Code, Database, Palette, Wrench } from 'lucide-react';
+
+const categoryIcons = {
+  frontend: Code,
+  backend: Database,
+  database: Database,
+  design: Palette,
+  tools: Wrench,
+  other: Code
+};
+
+const categoryColors = {
+  frontend: 'bg-blue-500',
+  backend: 'bg-green-500',
+  database: 'bg-purple-500',
+  design: 'bg-pink-500',
+  tools: 'bg-orange-500',
+  other: 'bg-gray-500'
+};
+
+export default function Skills({ skills }) {
+  if (!skills || skills.length === 0) return null;
+
+  const skillsByCategory = skills.reduce((acc, skill) => {
+    const category = skill.category || 'other';
+    if (!acc[category]) acc[category] = [];
+    acc[category].push(skill);
+    return acc;
+  }, {});
+
+  const categoryNames = {
+    frontend: '前端开发',
+    backend: '后端开发',
+    database: '数据库',
+    design: '设计',
+    tools: '工具',
+    other: '其他'
+  };
+
+  return (
+    <section className="py-20 bg-gray-50">
+      <div className="max-w-6xl mx-auto px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl font-light text-gray-900 mb-4">专业技能</h2>
+          <div className="h-1 w-24 bg-blue-600 mx-auto"></div>
+        </motion.div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {Object.entries(skillsByCategory).map(([category, categorySkills], index) => {
+            const Icon = categoryIcons[category];
+            
+            return (
+              <motion.div
+                key={category}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300"
+              >
+                <div className="flex items-center gap-3 mb-6">
+                  <div className={`w-12 h-12 ${categoryColors[category]} rounded-xl flex items-center justify-center`}>
+                    <Icon className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900">
+                    {categoryNames[category]}
+                  </h3>
+                </div>
+                
+                <div className="space-y-4">
+                  {categorySkills.map((skill, skillIndex) => (
+                    <div key={skillIndex} className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700 font-medium">{skill.name}</span>
+                        <span className="text-sm text-gray-500">{skill.level}/10</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          whileInView={{ width: `${skill.level * 10}%` }}
+                          transition={{ duration: 1, delay: 0.5 }}
+                          viewport={{ once: true }}
+                          className={`h-2 rounded-full ${categoryColors[category]}`}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}

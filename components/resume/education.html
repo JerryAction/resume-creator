@@ -1,0 +1,84 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Calendar } from 'lucide-react';
+import { format } from 'date-fns';
+
+export default function Education({ education }) {
+  if (!education || education.length === 0) return null;
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    return format(new Date(dateString), 'yyyy年MM月');
+  };
+
+  return (
+    <section className="py-20 bg-white">
+      <div className="max-w-6xl mx-auto px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl font-light text-gray-900 mb-4">教育背景</h2>
+          <div className="h-1 w-24 bg-blue-600 mx-auto"></div>
+        </motion.div>
+
+        <div className="grid md:grid-cols-2 gap-8">
+          {education.map((edu, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: index * 0.1 }}
+              viewport={{ once: true }}
+              className="bg-gray-50 rounded-2xl p-8 hover:shadow-lg transition-shadow duration-300"
+            >
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-14 h-14 rounded-xl flex items-center justify-center">
+                  <img src="/public/education_icon.svg" alt="Education icon" className="w-7 h-7" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900">
+                    {edu.school}
+                  </h3>
+                  <div className="flex items-center gap-2 text-gray-600 mt-1">
+                    <Calendar className="w-4 h-4" />
+                    <span>
+                      {formatDate(edu.start_date)} - {formatDate(edu.end_date)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <p className="text-lg font-medium text-gray-900">
+                    {edu.degree}
+                  </p>
+                  <p className="text-gray-600">
+                    {edu.major}
+                  </p>
+                </div>
+
+                {edu.gpa && (
+                  <div>
+                    <span className="text-sm text-gray-500">成绩: </span>
+                    <span className="text-gray-900 font-medium">{edu.gpa}</span>
+                  </div>
+                )}
+
+                {edu.description && (
+                  <p className="text-gray-700 leading-relaxed">
+                    {edu.description}
+                  </p>
+                )}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}

@@ -1,0 +1,44 @@
+{
+  "name": "Experience",
+  "type": "object",
+  "properties": {
+    "company": {
+      "type": "string",
+      "description": "公司名称"
+    },
+    "position": {
+      "type": "string",
+      "description": "职位"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "开始日期"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "结束日期"
+    },
+    "is_current": {
+      "type": "boolean",
+      "description": "是否为当前职位"
+    },
+    "description": {
+      "type": "string",
+      "description": "工作描述"
+    },
+    "achievements": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "主要成就"
+    },
+    "location": {
+      "type": "string",
+      "description": "工作地点"
+    }
+  },
+  "required": []
+}

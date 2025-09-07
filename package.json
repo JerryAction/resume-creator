@@ -1,0 +1,48 @@
+{
+  "name": "personal-resume",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "个人简历网站，支持后台编辑",
+  "main": "index.js",
+  "scripts": {
+    "start": "PORT=3002 react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.4.0",
+    "@fortawesome/free-brands-svg-icons": "^6.4.0",
+    "@fortawesome/free-solid-svg-icons": "^6.4.0",
+    "@fortawesome/react-fontawesome": "^0.2.0",
+    "@tailwindcss/line-clamp": "^0.4.4",
+    "axios": "^1.11.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "framer-motion": "^10.0.0",
+    "lowdb": "^6.1.1",
+    "lucide-react": "^0.100.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "^6.8.0",
+    "react-slider": "^2.0.6",
+    "remark-gfm": "^4.0.1",
+    "shortid": "^2.2.17"
+  },
+  "devDependencies": {
+    "react-scripts": "5.0.1"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

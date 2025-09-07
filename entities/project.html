@@ -1,0 +1,64 @@
+{
+  "name": "Project",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "项目名称"
+    },
+    "description": {
+      "type": "string",
+      "format": "textarea",
+      "description": "项目描述 (支持Markdown格式，使用换行进行分段)"
+    },
+    "technologies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "使用的技术栈"
+    },
+    "link": {
+      "type": "string",
+      "description": "项目链接"
+    },
+    "github": {
+      "type": "string",
+      "description": "GitHub链接"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "项目截图"
+    },
+    "featured": {
+      "type": "boolean",
+      "description": "是否为特色项目"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "开始日期"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "结束日期"
+    },
+    "team_size": {
+      "type": "number",
+      "description": "团队规模"
+    },
+    "role": {
+      "type": "string",
+      "description": "在项目中的角色"
+    },
+    "achievements": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "项目成就"
+    }
+  },
+  "required": []
+}

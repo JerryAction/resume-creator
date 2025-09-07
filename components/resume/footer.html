@@ -1,0 +1,32 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Heart } from 'lucide-react';
+
+export default function Footer() {
+  return (
+    <footer className="bg-gray-900 text-white py-16">
+      <div className="max-w-6xl mx-auto px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center"
+        >
+          <div className="mb-8">
+            <h3 className="text-2xl font-light mb-4">感谢您的关注</h3>
+            <p className="text-gray-400 max-w-2xl mx-auto leading-relaxed">
+              如果您对我的经历和项目感兴趣，欢迎随时联系我。我期待与您交流，探讨合作机会。
+            </p>
+          </div>
+          
+          <div className="border-t border-gray-800 pt-8">
+            <p className="text-gray-400 flex items-center justify-center gap-2">
+              Made with <Heart className="w-4 h-4 text-red-500" /> using base44
+            </p>
+          </div>
+        </motion.div>
+      </div>
+    </footer>
+  );
+}

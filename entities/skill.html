@@ -1,0 +1,33 @@
+{
+  "name": "Skill",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "技能名称"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "frontend",
+        "backend",
+        "database",
+        "tools",
+        "design",
+        "other"
+      ],
+      "description": "技能类别"
+    },
+    "level": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "技能水平 (1-10)"
+    },
+    "years_experience": {
+      "type": "number",
+      "description": "经验年数"
+    }
+  },
+  "required": []
+}

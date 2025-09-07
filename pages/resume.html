@@ -1,0 +1,92 @@
+import React, { useState, useEffect } from 'react';
+import { Profile, Experience, Project, Skill, Education } from '@/entities/all';
+import Hero from '../components/resume/Hero';
+import Skills from '../components/resume/Skills';
+import ExperienceSection from '../components/resume/Experience';
+import Projects from '../components/resume/Projects';
+import EducationSection from '../components/resume/Education';
+import Footer from '../components/resume/Footer';
+
+export default function Resume() {
+  const [profile, setProfile] = useState(null);
+  const [experiences, setExperiences] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [skills, setSkills] = useState([]);
+  const [education, setEducation] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      // 将并行请求改为串行请求，避免速率限制
+      const profileData = await Profile.list('-created_date');
+      setProfile(profileData[0] || null);
+
+      const experienceData = await Experience.list('-start_date');
+      setExperiences(experienceData);
+
+      const projectData = await Project.list('-start_date');
+      setProjects(projectData);
+
+      const skillData = await Skill.list('category');
+      setSkills(skillData);
+
+      const educationData = await Education.list('-start_date');
+      setEducation(educationData);
+
+    } catch (err) {
+      console.error('加载数据失败:', err);
+      setError('加载简历数据失败，请稍后重试或检查网络连接。');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">加载中...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center p-6 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-600 font-semibold">发生错误</p>
+          <p className="text-red-500 mt-2">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">暂无简历数据</p>
+          <p className="text-sm text-gray-500">请在工作区添加个人信息</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-white">
+      <Hero profile={profile} />
+      <Skills skills={skills} />
+      <ExperienceSection experiences={experiences} />
+      <Projects projects={projects} />
+      <EducationSection education={education} />
+      <Footer />
+    </div>
+  );
+}

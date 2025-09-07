@@ -1,0 +1,98 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Calendar, MapPin, ArrowRight } from 'lucide-react';
+import { format } from 'date-fns';
+
+export default function Experience({ experiences }) {
+  if (!experiences || experiences.length === 0) return null;
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    return format(new Date(dateString), 'yyyy年MM月');
+  };
+
+  return (
+    <section className="py-20 bg-white">
+      <div className="max-w-6xl mx-auto px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl font-light text-gray-900 mb-4">工作经历</h2>
+          <div className="h-1 w-24 bg-blue-600 mx-auto"></div>
+        </motion.div>
+
+        <div className="relative">
+          {/* 时间线 */}
+          <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+
+          <div className="space-y-12">
+            {experiences.map((experience, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: -50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="relative pl-20"
+              >
+                {/* 时间线节点 */}
+                <div className="absolute left-6 top-6 w-4 h-4 bg-blue-600 rounded-full border-4 border-white shadow-lg"></div>
+
+                <div className="bg-gray-50 rounded-2xl p-8 hover:shadow-lg transition-shadow duration-300">
+                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
+                    <div>
+                      <h3 className="text-2xl font-semibold text-gray-900 mb-2">
+                        {experience.position}
+                      </h3>
+                      <p className="text-xl text-blue-600 font-medium">
+                        {experience.company}
+                      </p>
+                    </div>
+                    <div className="mt-4 lg:mt-0 space-y-2">
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <Calendar className="w-4 h-4" />
+                        <span>
+                          {formatDate(experience.start_date)} - {
+                            experience.is_current ? '至今' : formatDate(experience.end_date)
+                          }
+                        </span>
+                      </div>
+                      {experience.location && (
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <MapPin className="w-4 h-4" />
+                          <span>{experience.location}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <p className="text-gray-700 mb-6 leading-relaxed">
+                    {experience.description}
+                  </p>
+
+                  {experience.achievements && experience.achievements.length > 0 && (
+                    <div className="space-y-3">
+                      <h4 className="text-lg font-medium text-gray-900">主要成就</h4>
+                      <ul className="space-y-2">
+                        {experience.achievements.map((achievement, achievementIndex) => (
+                          <li key={achievementIndex} className="flex items-start gap-3">
+                            <ArrowRight className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                            <span className="text-gray-700">{achievement}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
