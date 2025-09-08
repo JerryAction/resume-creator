@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // 配置API基础URL
-const API_BASE_URL = 'http://localhost:5001/api';
+const API_BASE_URL = '/api';
 
 /**
  * 获取所有简历数据
@@ -52,10 +52,7 @@ export const saveResumeData = async (section, data) => {
   }
 
   try {
-    function toKebabCase(str) {
-  return str.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`);
-}
-const response = await axios.post(`${API_BASE_URL}/${toKebabCase(section)}`, data);
+    const response = await axios.post(`${API_BASE_URL}/${section}`, data);
     return response.data;
   } catch (error) {
     console.error(`Failed to save ${section} data:`, error);
