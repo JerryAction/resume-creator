@@ -52,7 +52,10 @@ export const saveResumeData = async (section, data) => {
   }
 
   try {
-    const response = await axios.post(`${API_BASE_URL}/${section}`, data);
+    function toKebabCase(str) {
+  return str.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`);
+}
+const response = await axios.post(`${API_BASE_URL}/${toKebabCase(section)}`, data);
     return response.data;
   } catch (error) {
     console.error(`Failed to save ${section} data:`, error);
