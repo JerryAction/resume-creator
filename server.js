@@ -32,7 +32,14 @@ const db = new Low(adapter, {
 // 初始化数据库连接
 async function initDB() {
   await db.read();
-  db.data ||= { personalInfo: {}, skills: { databases: [], tools: [] }, experience: [], projects: [], education: {}, footer: {} };
+  db.data ||= { 
+  personalInfo: { name: '张三', title: '前端开发工程师', email: 'example@mail.com', phone: '13800138000', address: '北京市海淀区' }, 
+  skills: { databases: [{ name: 'MySQL', level: 8 }, { name: 'MongoDB', level: 6 }], tools: [{ name: 'React', level: 9 }, { name: 'Node.js', level: 8 }] }, 
+  experience: [{ company: '科技有限公司', position: '前端开发', startDate: '2020-01', endDate: '至今', description: '负责前端开发工作' }], 
+  projects: [{ name: '个人博客', description: '使用React构建的个人博客系统' }], 
+  education: { school: '北京大学', major: '计算机科学', degree: '本科', graduation: '2019' }, 
+  footer: { copyright: '© 2023 个人简历' } 
+};
   
   // 数据迁移：将旧的0-100等级转换为1-10等级
   const migrateLevel = (skillsArray) => {
