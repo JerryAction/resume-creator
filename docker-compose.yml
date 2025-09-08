@@ -1,6 +1,7 @@
 version: '3'
 services:
   resume-app:
+    container_name: resume-app
     build: .
     image: resume-creator:latest
     ports:
