@@ -4,7 +4,7 @@ services:
     build: .
     image: resume-creator:latest
     ports:
-      - "3002:3002"
+      - "3000:13000"
     environment:
       - NODE_ENV=production
     restart: unless-stopped
