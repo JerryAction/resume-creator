@@ -1,0 +1,14 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+.env
+.vscode
+coverage
+build
+bfg.jar
+.git.bfg-report
+my.html
+my_optimized.html
+my_optimized_v0.html
+.DS_Store

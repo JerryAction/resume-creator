@@ -11,6 +11,8 @@
 
 ## 快速开始
 
+### 开发模式
+
 1. 安装依赖:
    ```
    npm install
@@ -24,6 +26,19 @@
 3. 打开浏览器访问 `http://localhost:3000` 查看简历网站
 
 4. 访问 `http://localhost:3000/admin` 进入管理后台编辑内容
+
+### Docker一键运行 (离线模式)
+
+1. 确保已安装Docker和Docker Compose
+2. 构建并启动容器:
+   ```
+   docker-compose up -d
+   ```
+3. 打开浏览器访问 `http://localhost:3002` 查看简历网站
+4. 停止容器:
+   ```
+   docker-compose down
+   ```
 
 ## 项目结构
 
