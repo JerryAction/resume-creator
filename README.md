@@ -27,18 +27,49 @@
 
 4. 访问 `http://localhost:3000/admin` 进入管理后台编辑内容
 
-### Docker一键运行 (离线模式)
+### Docker一键运行 (跨平台支持)
 
-1. 确保已安装Docker和Docker Compose
-2. 构建并启动容器:
+#### 通用前置条件
+1. 安装Docker和Docker Compose:
+   - Windows/Mac: 安装[Docker Desktop](https://www.docker.com/products/docker-desktop)
+   - Linux: 
+     ```bash
+     # Ubuntu/Debian示例
+     sudo apt update && sudo apt install docker.io docker-compose -y
+     sudo systemctl enable --now docker
+     sudo usermod -aG docker $USER  # 允许当前用户管理Docker(需注销重登录)
+     ```
+
+#### 部署步骤
+1. 获取项目代码:
+   ```bash
+   # 方式1: HTTPS克隆(推荐新手)
+   git clone https://github.com/JerryAction/resume-creator.git
+   
+   # 方式2: SSH克隆(需配置SSH密钥)
+   git clone git@github.com:JerryAction/resume-creator.git
+   
+   cd resume-creator
    ```
+
+2. 构建并启动容器:
+   ```bash
    docker-compose up -d
    ```
-3. 打开浏览器访问 `http://localhost:3002` 查看简历网站
-4. 停止容器:
-   ```
+
+3. 访问应用:
+   - 简历网站: `http://localhost:3002`
+   - 管理后台: `http://localhost:3002/admin`
+
+4. 停止服务:
+   ```bash
    docker-compose down
    ```
+
+#### 跨平台注意事项
+- **Linux特有**: 确保防火墙开放3002端口或关闭防火墙
+- **Windows特有**: Docker Desktop需启用WSL2后端
+- **Mac特有**: 注意Docker资源配置(建议至少2GB内存)
 
 ## 项目结构
 
