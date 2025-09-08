@@ -2,6 +2,7 @@ version: '3'
 services:
   person-app:
     build: .
+    image: resume-creator:latest
     ports:
       - "3002:3002"
     environment:
