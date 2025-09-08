@@ -10,7 +10,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // 初始化Express应用
 const app = express();
-const PORT = 5001;
+const PORT = 13000;
 
 // 配置中间件
 app.use(cors());
@@ -149,7 +149,7 @@ app.post('/api/footer', async (req, res) => {
 // 初始化服务器
 initDB().then(() => {
   app.listen(PORT, () => {
-    console.log(`Backend server running on http://localhost:${PORT}`);
+    console.log(`Server running on http://0.0.0.0:${PORT}`);
   });
 }).catch(err => {
   console.error('Failed to initialize database:', err);

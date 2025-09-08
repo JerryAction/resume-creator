@@ -14,5 +14,7 @@ RUN npm install --production
 COPY --from=build /app/build ./build
 COPY server.js .
 COPY src ./src
-EXPOSE 3002
+COPY public ./public
+COPY db.json .
+EXPOSE 13000
 CMD ["node", "server.js"]

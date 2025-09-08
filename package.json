@@ -5,12 +5,13 @@
   "description": "个人简历网站，支持后台编辑",
   "main": "index.js",
   "scripts": {
-    "start": "PORT=3002 react-scripts start",
+    "start": "PORT=13000 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
   "dependencies": {
+    "uuid": "^9.0.0",
     "@fortawesome/fontawesome-svg-core": "^6.4.0",
     "@fortawesome/free-brands-svg-icons": "^6.4.0",
     "@fortawesome/free-solid-svg-icons": "^6.4.0",
