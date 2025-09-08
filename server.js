@@ -13,9 +13,17 @@ const app = express();
 const PORT = 13000;
 
 // 配置中间件
-app.use(cors());
+app.use(cors({ origin: '*', credentials: true }));
+app.use((req, res, next) => {
+  console.log(`API Request: ${req.method} ${req.originalUrl}`);
+  next();
+});
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'build')));
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api')) return next();
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
 
 // 初始化LowDB数据库
 const file = path.join(__dirname, 'db.json');
@@ -32,14 +40,7 @@ const db = new Low(adapter, {
 // 初始化数据库连接
 async function initDB() {
   await db.read();
-  db.data ||= { 
-  personalInfo: { name: '张三', title: '前端开发工程师', email: 'example@mail.com', phone: '13800138000', address: '北京市海淀区' }, 
-  skills: { databases: [{ name: 'MySQL', level: 8 }, { name: 'MongoDB', level: 6 }], tools: [{ name: 'React', level: 9 }, { name: 'Node.js', level: 8 }] }, 
-  experience: [{ company: '科技有限公司', position: '前端开发', startDate: '2020-01', endDate: '至今', description: '负责前端开发工作' }], 
-  projects: [{ name: '个人博客', description: '使用React构建的个人博客系统' }], 
-  education: { school: '北京大学', major: '计算机科学', degree: '本科', graduation: '2019' }, 
-  footer: { copyright: '© 2023 个人简历' } 
-};
+  db.data ||= { personalInfo: {}, skills: { databases: [], tools: [] }, experience: [], projects: [], education: {}, footer: {} };
   
   // 数据迁移：将旧的0-100等级转换为1-10等级
   const migrateLevel = (skillsArray) => {
@@ -63,7 +64,7 @@ async function initDB() {
 }
 
 // API路由 - 个人信息
-app.get('/api/personalInfo', async (req, res) => {
+app.get('/api/personal-info', async (req, res) => {
   await db.read();
   res.json(db.data.personalInfo);
 });
@@ -76,7 +77,7 @@ app.post('/api/personal-info', async (req, res) => {
 });
 
 // API路由 - 技能信息
-app.get('/api/skillsData', async (req, res) => {
+app.get('/api/skills', async (req, res) => {
   await db.read();
   res.json(db.data.skills);
 });
@@ -103,7 +104,7 @@ app.post('/api/skills', async (req, res) => {
 });
 
 // API路由 - 工作经历
-app.get('/api/workExperience', async (req, res) => {
+app.get('/api/experience', async (req, res) => {
   await db.read();
   res.json(db.data.experience);
 });
@@ -116,7 +117,7 @@ app.post('/api/experience', async (req, res) => {
 });
 
 // API路由 - 项目经历
-app.get('/api/projectList', async (req, res) => {
+app.get('/api/projects', async (req, res) => {
   await db.read();
   res.json(db.data.projects);
 });
@@ -129,7 +130,7 @@ app.post('/api/projects', async (req, res) => {
 });
 
 // API路由 - 教育背景
-app.get('/api/educationInfo', async (req, res) => {
+app.get('/api/education', async (req, res) => {
   await db.read();
   res.json(db.data.education);
 });
@@ -142,7 +143,7 @@ app.post('/api/education', async (req, res) => {
 });
 
 // API路由 - 页脚信息
-app.get('/api/footerInfo', async (req, res) => {
+app.get('/api/footer', async (req, res) => {
   await db.read();
   res.json(db.data.footer);
 });
