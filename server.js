@@ -68,7 +68,7 @@ app.get('/api/personalInfo', async (req, res) => {
   res.json(db.data.personalInfo);
 });
 
-app.post('/api/personalInfo', async (req, res) => {
+app.post('/api/personal-info', async (req, res) => {
   await db.read();
   db.data.personalInfo = req.body;
   await db.write();
