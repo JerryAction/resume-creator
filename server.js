@@ -15,6 +15,7 @@ const PORT = 13000;
 // 配置中间件
 app.use(cors());
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'build')));
 
 // 初始化LowDB数据库
 const file = path.join(__dirname, 'db.json');
@@ -144,6 +145,11 @@ app.post('/api/footer', async (req, res) => {
   db.data.footer = req.body;
   await db.write();
   res.json({ success: true, data: db.data.footer });
+});
+
+// 处理根路径请求
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
 // 初始化服务器
