@@ -63,12 +63,12 @@ async function initDB() {
 }
 
 // API路由 - 个人信息
-app.get('/api/personal-info', async (req, res) => {
+app.get('/api/personalInfo', async (req, res) => {
   await db.read();
   res.json(db.data.personalInfo);
 });
 
-app.post('/api/personal-info', async (req, res) => {
+app.post('/api/personalInfo', async (req, res) => {
   await db.read();
   db.data.personalInfo = req.body;
   await db.write();
@@ -76,7 +76,7 @@ app.post('/api/personal-info', async (req, res) => {
 });
 
 // API路由 - 技能信息
-app.get('/api/skills', async (req, res) => {
+app.get('/api/skillsData', async (req, res) => {
   await db.read();
   res.json(db.data.skills);
 });
@@ -103,7 +103,7 @@ app.post('/api/skills', async (req, res) => {
 });
 
 // API路由 - 工作经历
-app.get('/api/experience', async (req, res) => {
+app.get('/api/workExperience', async (req, res) => {
   await db.read();
   res.json(db.data.experience);
 });
@@ -116,7 +116,7 @@ app.post('/api/experience', async (req, res) => {
 });
 
 // API路由 - 项目经历
-app.get('/api/projects', async (req, res) => {
+app.get('/api/projectList', async (req, res) => {
   await db.read();
   res.json(db.data.projects);
 });
@@ -129,7 +129,7 @@ app.post('/api/projects', async (req, res) => {
 });
 
 // API路由 - 教育背景
-app.get('/api/education', async (req, res) => {
+app.get('/api/educationInfo', async (req, res) => {
   await db.read();
   res.json(db.data.education);
 });
@@ -142,7 +142,7 @@ app.post('/api/education', async (req, res) => {
 });
 
 // API路由 - 页脚信息
-app.get('/api/footer', async (req, res) => {
+app.get('/api/footerInfo', async (req, res) => {
   await db.read();
   res.json(db.data.footer);
 });
