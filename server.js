@@ -26,8 +26,6 @@ app.use((req, res, next) => {
 });
 
 // 初始化LowDB数据库
-console.log('Attempting to load db.json from:', path.join(__dirname, 'db.json'));
-
 const file = path.join(__dirname, 'db.json');
 const adapter = new JSONFile(file);
 const db = new Low(adapter, {
@@ -42,8 +40,6 @@ const db = new Low(adapter, {
 // 初始化数据库连接
 async function initDB() {
   await db.read();
-console.log('Successfully loaded db.json. Data preview:', JSON.stringify(db.data, null, 2).substring(0, 500));
-
   db.data ||= { personalInfo: {}, skills: { databases: [], tools: [] }, experience: [], projects: [], education: [], footer: {} };
   
   // 数据迁移：将旧的0-100等级转换为1-10等级

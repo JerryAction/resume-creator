@@ -15,31 +15,22 @@ export default function Resume({ data }) {
     // 转换skills数据结构以适应Skills组件
     let formattedSkills = [];
     if (skills) {
-      // 处理databases类别
-      if (skills.databases && Array.isArray(skills.databases)) {
-        formattedSkills = formattedSkills.concat(
-          skills.databases.map((skill, index) => ({
-            id: `database-${index}`,
-            name: skill.name,
-            level: skill.level,
-            category: '数据库技术',
-            description: `掌握${skill.name}，熟练度${skill.level * 10}%`
-          }))
-        );
-      }
-      
-      // 处理tools类别
-      if (skills.tools && Array.isArray(skills.tools)) {
-        formattedSkills = formattedSkills.concat(
-          skills.tools.map((skill, index) => ({
-            id: `tool-${index}`,
-            name: skill.name,
-            level: skill.level,
-            category: '工具与技术',
-            description: `掌握${skill.name}，熟练度${skill.level * 10}%`
-          }))
-        );
-      }
+      // 处理categories类别
+    if (skills.categories && Array.isArray(skills.categories)) {
+      skills.categories.forEach((category, catIndex) => {
+        if (category.skills && Array.isArray(category.skills)) {
+          formattedSkills = formattedSkills.concat(
+            category.skills.map((skill, index) => ({
+              id: `skill-${catIndex}-${index}`,
+              name: skill.name,
+              level: skill.level,
+              category: category.name,
+              description: `掌握${skill.name}，熟练度${skill.level * 10}%`
+            }))
+          );
+        }
+      });
+    }
     }
     
     return (
