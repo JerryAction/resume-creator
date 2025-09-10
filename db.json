@@ -1,29 +1,29 @@
 {
   "personalInfo": {
-    "name": "您的姓名",
-    "title": "您的职位",
-    "email": "您的邮箱",
-    "phone": "您的电话",
-    "location": "您的所在地",
-    "website": "您的网站(可选)",
+    "name": "",
+    "title": "",
+    "email": "",
+    "phone": "",
+    "location": "",
+    "website": "",
     "socialLinks": [
       {
         "platform": "linkedin",
-        "url": "您的LinkedIn链接",
+        "url": "",
         "icon": "linkedin"
       },
       {
         "platform": "github",
-        "url": "您的GitHub链接",
+        "url": "",
         "icon": "github"
       },
       {
         "platform": "blog",
-        "url": "您的博客链接(可选)",
+        "url": "",
         "icon": "blog"
       }
     ],
-    "avatarUrl": "https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEBo0JowAmvMFZ-D8u6NwocXBDy3Hn-IQACLRkAAj4FAAFW-j4COKnStDA2BA.png"
+    "avatarUrl": ""
   },
   "skills": {
     "categories": [

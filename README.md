@@ -13,56 +13,36 @@
 
 ### 开发模式
 
+这是一个前后端分离的项目，需要同时启动前端和后端服务器才能正常运行。
+
 1. 安装依赖:
    ```
    npm install
    ```
 
-2. 启动开发服务器:
+2. 启动后端服务器（在一个终端中执行）:
+   ```
+   node server.js
+   ```
+   - 后端服务器会在 `http://localhost:13000` 启动
+   - 负责提供API接口和管理 `db.json` 中的数据
+
+3. 启动前端开发服务器（在另一个终端中执行）:
    ```
    npm start
    ```
+   - 前端服务器会在 `http://localhost:3000` 启动
+   - 通过代理配置访问后端API获取数据
 
-3. 打开浏览器访问 `http://localhost:3000` 查看简历网站
+4. 打开浏览器访问
+   - 简历网站: `http://localhost:3000`
+   - 管理后台: `http://localhost:3000/admin`
 
-4. 访问 `http://localhost:3000/admin` 进入管理后台编辑内容
-
-### Docker单镜像部署
-
-#### 前置条件
-1. 安装Docker Engine:
-   ```bash
-   sudo apt-get update
-   sudo apt-get install docker-ce docker-ce-cli containerd.io -y
-   sudo systemctl start docker
-   sudo systemctl enable docker
-   sudo usermod -aG docker $USER
-   ```
-
-#### 部署步骤
-1. 克隆代码并构建镜像:
-   ```bash
-   git clone https://gitee.com/leiting923356588/resume-creator.git && cd resume-creator
-   docker build -t resume-creator:latest .
-   ```
-
-2. 启动容器:
-   ```bash
-   docker run -d -p 3000:13000 --name resume-app resume-creator:latest
-   ```
-
-3. 访问应用:
-   - 简历网站: http://docker主机IP:3000
-   - 管理后台: http://docker主机IP:3000/admin
-
-4. 停止容器:
-   ```bash
-   docker stop resume-app && docker rm resume-app
-   ```
+> **重要说明**：必须同时启动前端和后端服务器，否则无法正常显示和编辑简历数据。项目采用前后端分离架构，前端通过API从后端获取数据，后端负责数据的存储和提供。
 
 ### 一键Docker部署 (跨平台支持)
 
-## 前置条件
+#### 前置条件
 1. 安装Docker和Docker Compose:
    ```bash
    sudo apt update && sudo apt install docker.io docker-compose -y
@@ -70,7 +50,7 @@
    sudo usermod -aG docker $USER
    ```
 
-## 一键部署步骤
+#### 一键部署步骤
 1. 获取项目代码:
    ```bash
    git clone https://gitee.com/leiting923356588/resume-creator.git
@@ -90,20 +70,3 @@
    ```bash
    docker-compose down
    ```
-
-## 项目结构
-
-- `App.js`: 应用入口文件，配置路由
-- `layout.js`: 页面布局组件，包含导航栏
-- `src/pages/resume.js`: 简历页面组件
-- `src/pages/admin.js`: 管理后台组件
-- `components/resume/`: 简历各部分组件（hero, skills, experience, projects, education, footer）
-- `entities/`: 数据模型定义
-
-## 技术栈
-
-- React
-- React Router
-- Framer Motion (动画效果)
-- Lucide React (图标)
-- Tailwind CSS (样式)
