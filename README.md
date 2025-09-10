@@ -56,17 +56,38 @@
    git clone https://gitee.com/leiting923356588/resume-creator.git
    cd resume-creator
    ```
-
-2. 一键构建并启动服务:
+2. 配置（设置镜像加速）：
+   ```bash
+   cat /etc/docker/daemon.json
+   {
+       "registry-mirrors": ["https://docker.1panel.live", "https://docker.m.daocloud.io"]
+   }
+   ```
+   重启Docker服务:
+   ```bash
+   sudo systemctl daemon-reload
+   sudo systemctl restart docker
+   ```
+3. 一键构建并启动服务:
    ```bash
    docker-compose up -d --build
    ```
+   3.1 启动成功示例：
+   ```bash
+   docker ps -a
+   ```
+   CONTAINER ID   IMAGE                   COMMAND                  CREATED          STATUS          PORTS                                           NAMES
+   55e39163ce5a   resume-creator:latest   "docker-entrypoint.s…"   42 seconds ago   Up 41 seconds   0.0.0.0:3000->13000/tcp, [::]:3000->13000/tcp   resume-app
+   3.2 查看日志：
+   ```bash
+   docker logs -f resume-app
+   ```
 
-3. 访问应用:
+4. 访问应用:   
    - 简历网站: `http://docker主机IP:3000`
    - 管理后台: `http://docker主机IP:3000/admin`
 
-4. 停止服务:
+5. 停止服务:
    ```bash
    docker-compose down
    ```
