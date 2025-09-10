@@ -1,4 +1,7 @@
 version: '3'
+volumes:
+  node_modules:
+
 services:
   resume-app:
     container_name: resume-app
@@ -11,4 +14,4 @@ services:
     restart: unless-stopped
     volumes:
       - .:/app
-      - /app/node_modules
+      - node_modules:/app/node_modules
