@@ -9,3 +9,5 @@ services:
     environment:
       - NODE_ENV=production
     restart: unless-stopped
+    volumes:
+      - ./db.json:/app/db.json
