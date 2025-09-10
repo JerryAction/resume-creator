@@ -8,9 +8,29 @@ const EducationEditor = ({ data, onSave }) => {
   const [saveStatus, setSaveStatus] = useState(null);
 
   // 初始化表单数据
+  // 定义教育经历模板数据
+  const templateData = [
+    {
+      school: "北京大学",
+      degree: "计算机科学与技术 本科",
+      period: "2016年9月 - 2020年6月",
+      description: "主修计算机科学，辅修人工智能，GPA 3.8/4.0，获得优秀毕业生称号"
+    },
+    {
+      school: "清华大学",
+      degree: "软件工程 硕士",
+      period: "2020年9月 - 2022年6月",
+      description: "研究方向为前端工程化，发表2篇学术论文，参与国家自然科学基金项目"
+    }
+  ];
+
   useEffect(() => {
-    if (data && Array.isArray(data)) {
+    if (data && Array.isArray(data) && data.length > 0) {
+      // 使用用户数据
       setFormData([...data]);
+    } else {
+      // 使用模板数据
+      setFormData(templateData);
     }
   }, [data]);
 
@@ -149,13 +169,13 @@ const EducationEditor = ({ data, onSave }) => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">学位 <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">专业 <span className="text-red-500">*</span></label>
                     <input
                       type="text"
                       value={edu.degree || ''}
                       onChange={(e) => updateEducationField(index, 'degree', e.target.value)}
                       className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary"
-                      placeholder="输入学位"
+                      placeholder="输入专业"
                     />
                   </div>
                 </div>

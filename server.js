@@ -40,7 +40,7 @@ const db = new Low(adapter, {
 // 初始化数据库连接
 async function initDB() {
   await db.read();
-  db.data ||= { personalInfo: {}, skills: { databases: [], tools: [] }, experience: [], projects: [], education: {}, footer: {} };
+  db.data ||= { personalInfo: {}, skills: { databases: [], tools: [] }, experience: [], projects: [], education: [], footer: {} };
   
   // 数据迁移：将旧的0-100等级转换为1-10等级
   const migrateLevel = (skillsArray) => {
@@ -65,8 +65,13 @@ async function initDB() {
 
 // API路由 - 个人信息
 app.get('/api/personal-info', async (req, res) => {
-  await db.read();
-  res.json(db.data.personalInfo);
+  try {
+    await db.read();
+    res.json(db.data.personalInfo);
+  } catch (error) {
+    console.error('Error reading personal info:', error);
+    res.status(500).json({ error: 'Failed to read personal info' });
+  }
 });
 
 app.post('/api/personal-info', async (req, res) => {
@@ -78,8 +83,57 @@ app.post('/api/personal-info', async (req, res) => {
 
 // API路由 - 技能信息
 app.get('/api/skills', async (req, res) => {
-  await db.read();
-  res.json(db.data.skills);
+  try {
+    await db.read();
+    res.json(db.data.skills);
+  } catch (error) {
+    console.error('Error reading skills:', error);
+    res.status(500).json({ error: 'Failed to read skills' });
+  }
+});
+
+// API路由 - 工作经历
+app.get('/api/experience', async (req, res) => {
+  try {
+    await db.read();
+    res.json(db.data.experience);
+  } catch (error) {
+    console.error('Error reading experience:', error);
+    res.status(500).json({ error: 'Failed to read experience' });
+  }
+});
+
+// API路由 - 项目经验
+app.get('/api/projects', async (req, res) => {
+  try {
+    await db.read();
+    res.json(db.data.projects);
+  } catch (error) {
+    console.error('Error reading projects:', error);
+    res.status(500).json({ error: 'Failed to read projects' });
+  }
+});
+
+// API路由 - 教育背景
+app.get('/api/education', async (req, res) => {
+  try {
+    await db.read();
+    res.json(db.data.education);
+  } catch (error) {
+    console.error('Error reading education:', error);
+    res.status(500).json({ error: 'Failed to read education' });
+  }
+});
+
+// API路由 - 页脚信息
+app.get('/api/footer', async (req, res) => {
+  try {
+    await db.read();
+    res.json(db.data.footer);
+  } catch (error) {
+    console.error('Error reading footer:', error);
+    res.status(500).json({ error: 'Failed to read footer' });
+  }
 });
 
 app.post('/api/skills', async (req, res) => {
@@ -87,14 +141,17 @@ app.post('/api/skills', async (req, res) => {
   const skills = req.body;
   
   // 验证技能等级必须是1-10之间的整数
-  const validateLevel = (category) => {
-    if (!Array.isArray(category)) return false;
-    return category.every(skill => {
-      return typeof skill.level === 'number' && skill.level >= 1 && skill.level <= 10 && Number.isInteger(skill.level);
+  const validateLevel = (skillsArray) => {
+    if (!Array.isArray(skillsArray)) return false;
+    return skillsArray.every(skill => {
+      // 允许名称为空，仅验证等级（如果存在）
+      return !skill.level || (typeof skill.level === 'number' && skill.level >= 1 && skill.level <= 10 && Number.isInteger(skill.level));
     });
   };
   
-  if (!validateLevel(skills.databases) || !validateLevel(skills.tools)) {
+  // 验证所有分类下的技能等级
+  const allSkillsValid = skills.categories.every(category => validateLevel(category.skills));
+  if (!allSkillsValid) {
     return res.status(400).json({ success: false, error: '技能等级必须是1-10之间的整数' });
   }
   

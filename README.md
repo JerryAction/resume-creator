@@ -52,8 +52,8 @@
    ```
 
 3. 访问应用:
-   - 简历网站: http://localhost:3000
-   - 管理后台: http://localhost:3000/admin
+   - 简历网站: http://docker主机IP:3000
+   - 管理后台: http://docker主机IP:3000/admin
 
 4. 停止容器:
    ```bash
@@ -83,8 +83,8 @@
    ```
 
 3. 访问应用:
-   - 简历网站: `http://localhost:3000`
-   - 管理后台: `http://localhost:3000/admin`
+   - 简历网站: `http://docker主机IP:3000`
+   - 管理后台: `http://docker主机IP:3000/admin`
 
 4. 停止服务:
    ```bash

@@ -11,7 +11,7 @@ import ProjectEditor from './components/ProjectEditor.js';
 import EducationEditor from './components/EducationEditor.js';
 
 function App() {
-  const [resumeData, setResumeData] = useState(null);
+  const [resumeData, setResumeData] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [activeSection, setActiveSection] = useState('personalInfo');
 

@@ -8,7 +8,8 @@ const ResumePreview = ({ data }) => {
   const [expandedProjects, setExpandedProjects] = useState({});
   if (!data) return <div className="text-center py-10">暂无简历数据</div>;
 
-  const { personalInfo, skills, experience, projects, education } = data;
+  let { personalInfo, skills = [], experience = [], projects = [], education = [] } = data;
+personalInfo = personalInfo ?? {};
 
   // 获取社交图标
   const getSocialIcon = (platform) => {
@@ -103,8 +104,8 @@ const ResumePreview = ({ data }) => {
         {/* 主要内容 */}
         <div className="p-8 md:p-12">
           {/* 技能部分 */}
-          {skills && (
-            <Skills skills={[...(skills.databases || []).map(skill => ({...skill, category: '数据库技术'})), ...(skills.tools || []).map(skill => ({...skill, category: '工具与技术'}))]} />
+          {skills && skills.categories && (
+            <Skills categories={skills.categories} />
           )}
 
           {/* 工作经历 */}

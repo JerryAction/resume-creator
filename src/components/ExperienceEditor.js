@@ -8,12 +8,41 @@ const ExperienceEditor = ({ data, onSave }) => {
   const [saveStatus, setSaveStatus] = useState(null);
 
   // 初始化表单数据
+  // 定义模板数据
+  const templateData = [
+    {
+      company: "示例科技有限公司",
+      position: "前端开发工程师",
+      period: "2020年3月 - 2023年5月",
+      description: "负责公司核心产品的前端开发与优化工作，参与从需求分析到上线的全流程",
+      achievements: [
+        "重构用户界面组件库，提升开发效率30%",
+        "优化前端性能，页面加载时间减少40%",
+        "实现响应式设计，支持多终端访问"
+      ]
+    },
+    {
+      company: "创新软件工作室",
+      position: "实习软件工程师",
+      period: "2019年7月 - 2019年12月",
+      description: "参与内部管理系统开发，负责前端页面实现与交互逻辑",
+      achievements: [
+        "开发数据可视化模块，帮助管理层实时监控业务数据",
+        "修复多个兼容性问题，提升系统稳定性"
+      ]
+    }
+  ];
+
   useEffect(() => {
-    if (data && Array.isArray(data)) {
+    if (data && Array.isArray(data) && data.length > 0) {
+      // 使用用户数据
       setFormData(data.map(item => ({
         ...item,
         achievements: item.achievements || []
       })));
+    } else {
+      // 使用模板数据
+      setFormData(templateData);
     }
   }, [data]);
 
@@ -83,7 +112,7 @@ const ExperienceEditor = ({ data, onSave }) => {
   // 验证工作经历数据
   const validateExperienceData = () => {
     for (const exp of formData) {
-      if (!exp.company || !exp.position || !exp.period) {
+      if (!exp.company) {
         return false;
       }
     }
@@ -180,7 +209,7 @@ const ExperienceEditor = ({ data, onSave }) => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">职位 <span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">职位</label>
                     <input
                       type="text"
                       value={exp.position || ''}
@@ -192,7 +221,7 @@ const ExperienceEditor = ({ data, onSave }) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">时间段 <span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">时间段</label>
                   <input
                     type="text"
                     value={exp.period || ''}
@@ -280,7 +309,7 @@ const ExperienceEditor = ({ data, onSave }) => {
           )}
           {saveStatus === 'error' && (
             <div className="text-red-600 flex items-center">
-              <i className="fa fa-exclamation-circle mr-1"></i> 请填写所有必填字段
+              <i className="fa fa-exclamation-circle mr-1"></i> 请填写公司名称
             </div>
           )}
         </div>

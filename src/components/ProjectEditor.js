@@ -7,14 +7,52 @@ const ProjectEditor = ({ data, onSave }) => {
   const [saveStatus, setSaveStatus] = useState(null);
 
   // 初始化表单数据
+  // 定义项目模板数据
+  const templateData = [
+    {
+      title: "企业级电商平台",
+      company: "示例科技有限公司",
+      period: "2021年6月 - 2022年12月",
+      description: "开发并维护公司核心电商平台，支持千万级用户访问",
+      technologies: ["React", "Node.js", "MongoDB", "Redis", "Docker"],
+      achievements: [
+        "设计并实现微前端架构，将页面加载时间减少50%",
+        "优化数据库查询，提升系统并发处理能力3倍",
+        "主导支付模块重构，降低交易失败率90%"
+      ],
+      coreWork: [
+        { category: "架构设计", items: ["设计微前端架构方案", "制定前端组件库规范"] },
+        { category: "性能优化", items: ["实现图片懒加载策略", "优化首屏加载速度"] }
+      ]
+    },
+    {
+      title: "智能数据分析系统",
+      company: "数据智能实验室",
+      period: "2020年3月 - 2021年5月",
+      description: "开发面向企业客户的数据分析与可视化平台",
+      technologies: ["Vue.js", "D3.js", "Python", "Flask", "PostgreSQL"],
+      achievements: [
+        "开发10+数据可视化组件，支持复杂数据展示",
+        "实现实时数据更新功能，延迟控制在1秒以内"
+      ],
+      coreWork: [
+        { category: "前端开发", items: ["开发数据仪表盘", "实现交互式图表"] },
+        { category: "后端接口", items: ["设计RESTful API", "优化数据查询性能"] }
+      ]
+    }
+  ];
+
   useEffect(() => {
-    if (data && Array.isArray(data)) {
+    if (data && Array.isArray(data) && data.length > 0) {
       setFormData(data.map(item => ({
   ...item,
   technologies: item.technologies || [],
   achievements: item.achievements || [],
-  coreWork: item.coreWork ? (Array.isArray(item.coreWork) ? item.coreWork.map(work => typeof work === 'string' ? (() => { const [category, item] = work.split(':', 2); if (item === undefined) { return { category: '未分类', items: [category.trim()] }; } return { category: category?.trim() || '', items: [item.trim()] }; })() : (work && typeof work === 'object' ? { category: work.category?.trim() === '' ? '' : work.category?.trim() || '未分类', items: Array.isArray(work.items) ? work.items : work.items !== null && work.items !== undefined ? [work.items.toString()] : ['数据格式不支持'] } : { category: '未分类', items: [] }) ) : typeof item.coreWork === 'object' ? Object.entries(item.coreWork).map(([category, items]) => ({ category: category.trim(), items: Array.isArray(items) ? items : items !== null && items !== undefined ? [items.toString()] : ['数据格式不支持'] })) : typeof item.coreWork === 'string' ? item.coreWork.split(/\r?\n/).map(line => line.trim()).filter(line => line).map(line => { const [category, item] = line.split(':', 2); if (item === undefined) { return { category: '未分类', items: [category.trim()] }; } return { category: category?.trim() || '未分类', items: [item.trim()] }; }) : []) : []
+  coreWork: item.coreWork ? (Array.isArray(item.coreWork) ? item.coreWork.map(work => typeof work === 'string' ? (() => { const [category, item] = work.split(':', 2); if (item === undefined) { return { category: '未分类', items: [category.trim()] }; } return { category: category?.trim() || '', items: [item.trim()] }; })() : (work && typeof work === 'object' ? { category: work.category?.trim() === '' ? '' : work.category?.trim() || '未分类', items: Array.isArray(work.items) ? work.items : work.items !== null && work.items !== undefined ? [work.items.toString()] : ['数据格式不支持'] } : { category: '未分类', items: [] }) ) : typeof item.coreWork === 'object' ? Object.entries(item.coreWork).map(([category, items]) => ({ category: category.trim(), items: Array.isArray(items) ? items : items !== null && items !== undefined ? [items.toString()] : ['数据格式不支持'] })) : typeof item.coreWork === 'string' ? item.coreWork.split(/[\r\n]+/).map(line => line.trim()).filter(line => line).map(line => { const [category, item] = line.split(':', 2); if (item === undefined) { return { category: '未分类', items: [category.trim()] }; } return { category: category?.trim() || '未分类', items: [item.trim()] }; }) : []) : []
 })));
+    } else {
+      // 使用模板数据
+      setFormData(templateData);
     }
   }, [data]);
 

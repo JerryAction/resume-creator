@@ -1,131 +1,146 @@
 {
   "personalInfo": {
-    "name": "雷文霆",
-    "title": "数据库工程师",
-    "email": "jerrylwt@qq.com",
-    "phone": "18537165560",
-    "location": "上海",
-    "website": "",
+    "name": "您的姓名",
+    "title": "您的职位",
+    "email": "您的邮箱",
+    "phone": "您的电话",
+    "location": "您的所在地",
+    "website": "您的网站(可选)",
     "socialLinks": [
       {
         "platform": "linkedin",
-        "url": "https://blog.csdn.net/baidu_34007305",
+        "url": "您的LinkedIn链接",
         "icon": "linkedin"
       },
       {
         "platform": "github",
-        "url": "https://github.com/JerryAction",
+        "url": "您的GitHub链接",
         "icon": "github"
       },
       {
         "platform": "blog",
-        "url": "https://blog.csdn.net/baidu_34007305",
+        "url": "您的博客链接(可选)",
         "icon": "blog"
       }
     ],
-    "avatarUrl": "https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEBGPxoukzsg17QJsMtFxWFnXtycseLVAACfx8AAi5q2VWg6B3GrewYyzYE.png"
+    "avatarUrl": "https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEBo0JowAmvMFZ-D8u6NwocXBDy3Hn-IQACLRkAAj4FAAFW-j4COKnStDA2BA.png"
   },
   "skills": {
-    "databases": [
+    "categories": [
       {
-        "name": "MySQL",
-        "level": 8
+        "name": "新分类1",
+        "skills": [
+          {
+            "name": "技能1-1",
+            "level": 1
+          },
+          {
+            "name": "技能1-2",
+            "level": 2
+          },
+          {
+            "name": "技能1-3",
+            "level": 3
+          },
+          {
+            "name": "技能1-4",
+            "level": 4
+          }
+        ]
       },
       {
-        "name": "Redis",
-        "level": 8
+        "name": "新分类2",
+        "skills": [
+          {
+            "name": "技能2-1",
+            "level": 1
+          },
+          {
+            "name": "技能2-2",
+            "level": 2
+          },
+          {
+            "name": "技能2-3",
+            "level": 3
+          },
+          {
+            "name": "技能2-4",
+            "level": 4
+          }
+        ]
       },
       {
-        "name": "Oceanbase",
-        "level": 4
+        "name": "新分类3",
+        "skills": [
+          {
+            "name": "技能3-1",
+            "level": 1
+          },
+          {
+            "name": "技能3-2",
+            "level": 2
+          },
+          {
+            "name": "技能3-3",
+            "level": 3
+          },
+          {
+            "name": "技能3-4",
+            "level": 4
+          }
+        ]
       },
       {
-        "name": "Mycat or DBLE",
-        "level": 6
-      },
-      {
-        "name": "SQL Server",
-        "level": 6
-      }
-    ],
-    "tools": [
-      {
-        "name": "Shell",
-        "level": 8
-      },
-      {
-        "name": "Python",
-        "level": 6
-      },
-      {
-        "name": "Sysbench",
-        "level": 6
-      },
-      {
-        "name": "Prometheus",
-        "level": 5
-      },
-      {
-        "name": "AI",
-        "level": 5
-      },
-      {
-        "name": "K8s",
-        "level": 5
+        "name": "新分类4",
+        "skills": [
+          {
+            "name": "技能4-1",
+            "level": 1
+          },
+          {
+            "name": "技能4-2",
+            "level": 2
+          },
+          {
+            "name": "技能4-3",
+            "level": 3
+          },
+          {
+            "name": "技能4-4",
+            "level": 4
+          }
+        ]
       }
     ]
   },
   "experience": [
     {
-      "id": "",
-      "company": "上海爱可生信息技术股份有限公司",
-      "position": "数据库工程师",
-      "period": "2021年05月 - 至今",
-      "description": "负责MySQL、Redis数据库日常运维和自动化建设",
+      "company": "Jerry 技术有限公司",
+      "position": "Dream工程师",
+      "period": "2021年5月 - 至今",
+      "description": "负责美好生活日常运维和自我提升的自动化建设。",
       "achievements": [
-        "客户范围: 星巴克、浦发、兴业消金 ",
+        "客户范围: china、 love、self、friend、family ",
         "解决数据库问题并提供SOP文档100+ ",
-        "参与数据库迁移/升级/归档/备份实施套数100+ ",
         "以上项目维护过程中均是技术一号位"
-      ]
-    },
-    {
-      "company": "5173 中国网络游戏服务网",
-      "position": "数据库工程师",
-      "period": "2020年06月 - 2021年05月",
-      "description": "负责MySQL、SQL Server数据库日常运维",
-      "achievements": [
-        "负责数据库运维标准化，规范化及文档的编写",
-        "监控和优化数据库的性能，实施数据库备份恢复"
-      ]
-    },
-    {
-      "company": "上海瞻海信息科技",
-      "position": "系统工程师",
-      "period": "2018年03月 - 2020年06月",
-      "description": "负责集成项目中的云平台建设，为系统使用提供技术支持",
-      "achievements": [
-        "实施系统性能优化，提升系统响应速度 ",
-        "实现系统自动化备份，减少数据丢失风险"
       ]
     }
   ],
   "projects": [
     {
-      "id": "",
-      "title": "星巴克项目",
-      "tags": [],
+      "title": "Dream项目",
+      "company": "Jerry 技术有限公司",
+      "period": "2021年5月 - 至今",
+      "description": "开发并维护公司核心电商平台，支持千万级用户访问围绕数据库全生命周期开展运维管理工作，涵盖迁移升级、备份恢复、规范建设、高可用保障等多个维度，采用多样化技术手段与标准化流程，确保数据库系统稳定运行，支撑业务高效开展，服务规模涉及数百套数据库及集群。",
       "technologies": [
         "MySQL",
-        "Redis",
-        "DBLE",
-        "Oceanbase",
-        "Shell",
-        "Python",
-        "Xtrabackup",
-        "Percona Toolkit"
+        "Redis"
       ],
-      "overview": "",
+      "achievements": [
+        "完成500+次分钟级停机窗口的数据库迁移升级操作",
+        "制定100+SOP文档，建立标准化运维与问题处理流程",
+        "开展20+次知识分享活动，提升团队与客户技术能力"
+      ],
       "coreWork": [
         {
           "category": "数据库迁移、升级与归档",
@@ -138,162 +153,14 @@
           "category": "备份恢复方案实施",
           "items": [
             "基于Xtrabackup+Binlog backup+Python SendMail构建MySQL数据库备份恢复方案，涉及Shell与Python脚本开发及平台接口调用。",
-            "通过远程NBU拉取备份集，实现备份状态获取与告警提醒，保障200+数据库的数据安全。"
-          ]
-        },
-        {
-          "category": "规范与文档建设",
-          "items": [
-            "提供数据库操作文档，完善客户信息标准化，优化数据库使用规范。",
-            "持续完善技术文档库Confluence、信息管理CMDB、流程处理ITSM和DMS系统的完整性，覆盖数据库迁移中的变更申请、参数检查等多方面内容，支撑100+业务顺畅运行。"
-          ]
-        },
-        {
-          "category": "高可用保障",
-          "items": [
-            "标准化运维：针对MySQL/Redis（Cluster、Sentinel）集群，进行安装目录规划、参数基线制定和监控内容设定，构建标准化运维体系。",
-            "全流程问题管理：从预防、发现、处理三个层面保障高可用，制定操作规范及预防措施SOP文档100+；通过监控CPU、Memory等指标及日志分析，实现监控告警、故障应急与优化。"
-          ]
-        },
-        {
-          "category": "专项问题处理",
-          "items": [
-            "处理Redis复制风暴、复制延迟、迁移等问题，保障300+Redis集群稳定运行。",
-            "应对MySQL复制和MGR集群异常，进行Bug复现、工单复盘等工作。"
-          ]
-        },
-        {
-          "category": "分库分表中间件应用",
-          "items": [
-            "基于DBLE（Mycat）分库分表中间件，完成非热数据的存档管理，包括规划、安装、迁移及升级，处理数据总量约10T+。"
+            "热库归档：针对16套MySQL热通过远程NBU拉取备份集，实现备份状态获取与告警提醒，保障200+数据库的数据安全。设计导出和导入方案，实现向历史库的归档，方案涵盖执行时间优化、数据校验、延迟控制及告警提醒等关键环节。"
           ]
         },
         {
           "category": "知识沉淀与分享",
           "items": [
-            "开展20+次工单复盘、内部分享及客户培训活动，内容涉及日常运维、归档建议等，促进技术经验传播与团队能力提升。"
-          ]
-        },
-        {
-          "category": "项目推进管理",
-          "items": [
+            "开展20+次工单复盘、内部分享及客户培训活动，内容涉及日常运维、归档建议等，促进技术经验传播与团队能力提升。",
             "根据项目需求合理分配精力，通过任务分发与回收反馈机制，协调团队成员高效协作，保障项目高效运行。"
-          ]
-        }
-      ],
-      "technicalApplications": [
-        {
-          "category": "数据库技术",
-          "items": [
-            "MySQL主从复制 Redis Cluster/Sentinel MGR集群"
-          ]
-        },
-        {
-          "category": "工具与中间件",
-          "items": [
-            "Redis Shake Xtrabackup DBLE（Mycat） NBU"
-          ]
-        }
-      ],
-      "achievements": [
-        "完成500+次分钟级停机窗口的数据库迁移升级操作",
-        "保障200+数据库的数据安全，构建可靠备份恢复体系",
-        "制定100+SOP文档，建立标准化运维与问题处理流程",
-        "支撑300+Redis集群、16套MySQL热库等稳定运行",
-        "处理10T+非热数据的分库分表归档管理",
-        "开展20+次知识分享活动，提升团队与客户技术能力"
-      ],
-      "company": "上海爱可生信息技术股份有限公司",
-      "period": "2020年06月 - 2021年05月",
-      "description": "围绕数据库全生命周期开展运维管理工作，涵盖迁移升级、备份恢复、规范建设、高可用保障等多个维度，采用多样化技术手段与标准化流程，确保数据库系统稳定运行，支撑业务高效开展，服务规模涉及数百套数据库及集群。"
-    },
-    {
-      "title": "浦发和兴业银行项目",
-      "company": "",
-      "period": "",
-      "description": "负责浦发和兴业银行分布式核心MySQL MGR系统的异常处理、集群维护、故障修复和稳定性保障工作，提供7x24小时技术支持。",
-      "technologies": [
-        "MySQL",
-        "MGR",
-        "InnoDB",
-        "Percona",
-        "Shell"
-      ],
-      "achievements": [
-        "成功解决10+起MySQL MGR系统疑难问题",
-        "保障浦发、兴业银行核心系统稳定运行，全年无重大故障"
-      ],
-      "coreWork": [
-        {
-          "category": "分布式核心MySQL MGR系统异常处理",
-          "items": [
-            "集群维护：完成集群滚动升级、处理唯一键约束失效导致secondary节点退出问题",
-            "故障修复：解决innodb cluster外键冲突、页损坏导致集群异常、主从复制频繁断开故障",
-            "稳定性保障：处理死锁导致MySQL hang、临时表导致数据库Crash等疑难问题10+"
-          ]
-        },
-        {
-          "category": "日常技术支持",
-          "items": [
-            "提供主从切换、升级保障、平台巡检等日常问题咨询服务",
-            "针对突发故障提供7x24小时技术支持"
-          ]
-        },
-        {
-          "category": "团队协作与培训",
-          "items": [
-            "开展新员工培训，分享MySQL MGR系统运维经验",
-            "组织异常问题互助小组，共同攻克技术难题"
-          ]
-        }
-      ]
-    },
-    {
-      "title": "5173中国网络游戏服务网",
-      "company": "",
-      "period": "21",
-      "description": "负责5173游戏服务网数据库运维标准化、性能优化、数据同步及监控告警体系建设，支撑20+业务系统稳定运行，保障TB级数据安全与高效传输。",
-      "technologies": [
-        "MySQL",
-        "SQL Server",
-        "Canal",
-        "Prometheus",
-        "Python",
-        "Shell"
-      ],
-      "achievements": [
-        "完成MySQL全版本迁移方案，支持20+业务系统升级",
-        "构建TB级数据上云架构，保障数据安全高效传输",
-        "实现7*24h监控告警自动化，降低运维成本60%",
-        "编写5篇技术文档，建立标准化运维流程"
-      ],
-      "coreWork": [
-        {
-          "category": "核心职责",
-          "items": [
-            "负责数据库运维标准化、规范化及文档编写",
-            "监控和优化数据库性能，实施数据库备份恢复"
-          ]
-        },
-        {
-          "category": "数据库版本升级与迁移",
-          "items": [
-            "测试MySQL逻辑迁移方案(5.0→5.1→5.5→5.6→5.7→8.0)，编写5篇文档至公司SVN系统",
-            "支持20个业务系统升级，提升用户体验"
-          ]
-        },
-        {
-          "category": "数据同步与上云方案",
-          "items": [
-            "使用otter实现MySQL数据上云增量传输服务",
-            "基于Canal+Manager+Node+ZooKeeper构建高可用架构，支持TB级数据传输"
-          ]
-        },
-        {
-          "category": "监控与告警优化",
-          "items": [
-            "通过存储过程每分钟拉取SQL Server短信库告警，Python发送至企业微信监控群",
-            "实现7*24h信息共享，优化值班成本及时效性"
           ]
         }
       ]
@@ -301,10 +168,10 @@
   ],
   "education": [
     {
-      "school": "河南工程学院",
-      "degree": "计算机科学与技术",
-      "period": "2014年09月 - 2018年06月",
-      "description": "主修计算机科学与技术，专业课程包括数据结构、算法设计、软件工程、数据库系统。"
+      "school": "中国大学",
+      "degree": "祖国统一",
+      "period": "2014年9月-2018年6月",
+      "description": "主修明富国强，获得优秀毕业生称号。"
     }
   ],
   "footer": {

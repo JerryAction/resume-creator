@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // 配置API基础URL
-const API_BASE_URL = '/api';
+const API_BASE_URL = 'http://localhost:13000/api';
 
 /**
  * 获取所有简历数据
@@ -27,13 +27,14 @@ export const fetchResumeData = async () => {
     ]);
 
     return {
-      personalInfo: personalInfoRes.data,
-      skills: skillsRes.data,
-      experience: experienceRes.data,
-      projects: projectsRes.data,
-      education: educationRes.data,
-      footer: footerRes.data
+      personalInfo: personalInfoRes.data || {},
+      skills: skillsRes.data || [],
+      experience: experienceRes.data || [],
+      projects: projectsRes.data || [],
+      education: educationRes.data || [],
+      footer: footerRes.data || {}
     };
+
   } catch (error) {
     console.error('Failed to fetch resume data:', error);
     throw new Error('获取简历数据失败，请刷新页面重试');
