@@ -1,7 +1,9 @@
 import axios from 'axios';
 
-// 配置API基础URL
-const API_BASE_URL = 'http://localhost:13000/api';
+// 配置API基础URL - 使用相对路径以适配不同环境
+// 在开发环境中，React开发服务器会通过proxy配置转发请求
+// 在生产环境中(Docker)，请求会直接发送到同一服务器
+const API_BASE_URL = '/api';
 
 /**
  * 获取所有简历数据
