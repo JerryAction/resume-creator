@@ -11,3 +11,4 @@ services:
     restart: unless-stopped
     volumes:
       - .:/app
+      - /app/node_modules
