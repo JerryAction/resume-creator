@@ -11,11 +11,8 @@ FROM node:18-alpine
 WORKDIR /app
 COPY package*.json ./
 RUN npm install --production
-RUN cp -R node_modules /tmp/
 COPY --from=build /app/build ./build
 COPY server.js .
 COPY db.json .
-COPY entrypoint.sh .
-RUN chmod +x entrypoint.sh
 EXPOSE 13000
-ENTRYPOINT ["./entrypoint.sh"]
+CMD ["node", "server.js"]
