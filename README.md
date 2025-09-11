@@ -10,13 +10,10 @@
 - 动画效果提升用户体验
 
 预览模式-界面展示：
-
-[预览模式-界面展示](https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEBp89owaL0ovW4mept46u-aKshNp1TvQACDhQAAr9DEVaMQ7fjI7X2JjYE.png)
 <img width="599" height="1325" alt="image" src="https://github.com/user-attachments/assets/1a8f2742-9643-4de3-ade8-cd9cbb788f40" />
 
 
 编辑模式-界面展示
-[编辑模式-界面展示](https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEBp9BowaOTVzqWQt_tMe3puKLrA0UuTQACDxQAAr9DEVZcnVEaOyZ8mDYE.png)
 <img width="1434" height="906" alt="image" src="https://github.com/user-attachments/assets/8a9e687f-0653-49e9-9561-047be9002728" />
 
 
