@@ -1,0 +1,3645 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人简历生成器</title>
+    
+    <!-- 外部资源 -->
+    <link href="https://fonts.googleapis.com/css2?family=Long+Cang&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    
+    
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#8b5cf6',
+                        success: '#10b981',
+                        dark: '#111827',
+                        light: '#f9fafb'
+                    },
+                    fontFamily: {
+                        artistic: ['Long Cang', 'cursive'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .transition-all-300 {
+                transition: all 0.3s ease;
+            }
+            .skill-bar {
+                transition: width 1s ease-in-out;
+            }
+        }
+    </style>
+    
+    <style>
+        /* 全局样式 */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: white;
+            overflow-x: hidden;
+        }
+        
+        /* 编辑器样式 */
+        .editor-input:focus, .editor-textarea:focus {
+            outline: 2px solid #2563eb;
+            outline-offset: 2px;
+        }
+        
+        /* 预览区样式 */
+        .resume-preview {
+            background-color: white;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            margin: 0 auto;
+            padding: 0;
+            width: 100%;
+        }
+        
+        /* 完整预览模式特定样式 */
+        .resume-preview.full-preview {
+            max-width: 210mm; /* A4纸张宽度 */
+            margin: 0 auto;
+            padding: 20px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        /* 打印预览特定样式 */
+        @media print {
+            .resume-preview.full-preview {
+                max-width: 100%;
+                box-shadow: none;
+                padding: 0;
+            }
+        }
+        
+        .resume-preview:hover {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #c5c5c5;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        .animate-delay-100 {
+            animation-delay: 0.1s;
+        }
+        
+        .animate-delay-200 {
+            animation-delay: 0.2s;
+        }
+        
+        .animate-delay-300 {
+            animation-delay: 0.3s;
+        }
+        
+        /* 打印样式优化 */
+        @media print {
+            /* 隐藏所有不需要打印的UI元素 */
+            header, 
+            #editModeBtn, 
+            #previewModeBtn, 
+            #saveBtn, 
+            #downloadBtn,
+            #editorPanel,
+            #editorPreviewContainer > style,
+            .delete-skill-category,
+            .edit-category-name,
+            .edit-skill-name,
+            .add-core-item,
+            .delete-core-category,
+            .delete-core-item,
+            .add-skill-category,
+            #addExperience,
+            #addEducation,
+            .delete-experience,
+            .delete-education,
+            .delete-project,
+            .add-core-category,
+            .add-core-item,
+            .delete-core-category,
+            .delete-core-item,
+            .skill-range,
+            .edit-category-name,
+            .edit-skill-name,
+            .delete-skill-item,
+            .add-skill-item,
+            .add-project
+            {
+                display: none !important;
+            }
+            
+            /* 确保内容完整显示 */
+            body {
+                background: white !important;
+                padding: 0 !important;
+                font-size: 12pt;
+                margin: 0 !important;
+            }
+            
+            /* 优化打印内容容器 */
+            main {
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            
+            /* 确保预览面板在打印时占据整个宽度 */
+            #previewPanel {
+                max-width: 100% !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            
+            /* 移除可能干扰打印的元素 */
+            .fixed.top-4.right-4 { display: none !important; }
+            
+            /* 确保打印时不隐藏通知相关的特定元素 */
+            .notification-container { display: none !important; }
+            
+            /* 隐藏页脚版权信息 */
+            .bg-dark.text-white.py-8.mt-12 { display: none !important; }
+            
+            /* 调整简历预览区域样式 */
+            .resume-preview {
+                box-shadow: none !important;
+                border: 1px solid #ddd;
+                padding: 20px;
+                margin: 0 auto;
+                max-width: 210mm;
+                width: 100%;
+            }
+            
+            /* 确保英雄区网格在打印时正确布局 */
+            .hero-section .grid {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 20px !important;
+                align-items: center !important;
+            }
+            
+            /* 调整头像尺寸和位置 */
+            .hero-section .relative .w-96 {
+                width: 150px !important;
+                height: 150px !important;
+                margin: 0 auto;
+            }
+            
+            .hero-section .absolute {
+                width: 60px !important;
+                height: 60px !important;
+                bottom: -10px !important;
+                right: -10px !important;
+            }
+            
+            .hero-section .absolute .w-18 {
+                width: 40px !important;
+                height: 40px !important;
+                font-size: 12px !important;
+            }
+            
+            /* 调整边距和分页 */
+            section {
+                page-break-inside: avoid;
+                margin-bottom: 15px;
+            }
+            
+            /* 确保专业技能部分所有分类都在一个页面显示 */
+            section.py-30.bg-light {
+                page-break-inside: avoid !important;
+                page-break-after: avoid !important;
+                padding: 15px 0 !important;
+                background-color: #f8fafc !important;
+            }
+            
+            /* 确保打印时颜色显示正常 */
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            /* 恢复技能分类背景色 */
+            .skills-category-preview {
+                background-color: white !important;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+            }
+            
+            /* 确保技能分类标题颜色正确显示 */
+            .bg-purple-600 {
+                background-color: #8b5cf6 !important;
+            }
+            
+            .bg-blue-600 {
+                background-color: #2563eb !important;
+            }
+            
+            .bg-teal-600 {
+                background-color: #0d9488 !important;
+            }
+            
+            .bg-amber-600 {
+                background-color: #d97706 !important;
+            }
+            
+            /* 调整专业技能的网格布局，使其与预览模式保持一致（2列布局） */
+            .grid.grid-cols-1.md\:grid-cols-2.gap-10.max-w-2xl.mx-auto {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 10px !important;
+                justify-content: center !important;
+                margin: 0 auto !important;
+                max-width: 100% !important;
+            }
+            
+            /* 调整技能卡片样式，确保紧凑显示 */
+            .bg-white.rounded-2xl.p-10.shadow-sm {
+                padding: 15px !important;
+                margin-bottom: 10px !important;
+                page-break-inside: avoid !important;
+            }
+            
+            /* 减少技能卡片内部间距 */
+            .bg-white.rounded-2xl.p-10.shadow-sm .mb-8 {
+                margin-bottom: 15px !important;
+            }
+            
+            .bg-white.rounded-2xl.p-10.shadow-sm .gap-5 {
+                gap: 10px !important;
+            }
+            
+            /* 确保标题和图标尺寸适当 */
+            .text-1\.5xl.font-semibold {
+                font-size: 1rem !important;
+            }
+            
+            .w-14.h-14 {
+                width: 40px !important;
+                height: 40px !important;
+            }
+            
+            .text-2xl {
+                font-size: 1.2rem !important;
+            }
+            
+            /* 确保技能条等动态元素正确显示 */
+            .skill-bar {
+                transition: none !important;
+            }
+            
+            /* 保持文本颜色与预览模式一致 */
+            .text-primary {
+                color: #2563eb !important;
+            }
+            
+            .text-secondary {
+                color: #8b5cf6 !important;
+            }
+            
+            .text-accent {
+                color: #10b981 !important;
+            }
+            
+            /* 保持专业技能分类的背景色与预览模式一致 */
+            .bg-secondary {
+                background-color: #8b5cf6 !important;
+            }
+            
+            .bg-success {
+                background-color: #10b981 !important;
+            }
+            
+            .bg-primary {
+                background-color: #2563eb !important;
+            }
+            
+            .bg-light {
+                background-color: #f9fafb !important;
+            }
+            
+            .bg-white {
+                background-color: white !important;
+            }
+            
+            /* 为技能分类实际使用的Tailwind颜色类设置背景色 */
+            .bg-purple-600 {
+                background-color: #8b5cf6 !important;
+            }
+            
+            .bg-green-600 {
+                background-color: #10b981 !important;
+            }
+            
+            .bg-blue-600 {
+                background-color: #2563eb !important;
+            }
+            
+            .bg-amber-500 {
+                background-color: #f59e0b !important;
+            }
+            
+            /* 确保技能条颜色与预览模式一致 */
+            .skill-bar.bg-secondary,
+            .skill-bar.bg-purple-600 {
+                background-color: #8b5cf6 !important;
+            }
+            
+            .skill-bar.bg-success,
+            .skill-bar.bg-green-600 {
+                background-color: #10b981 !important;
+            }
+            
+            .skill-bar.bg-primary,
+            .skill-bar.bg-blue-600 {
+                background-color: #2563eb !important;
+            }
+            
+            .skill-bar.bg-amber-500 {
+                background-color: #f59e0b !important;
+            }
+            
+            /* 确保颜色能被打印出来 */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            
+            /* 调整表格样式 */
+            table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+            
+            th, td {
+                border: 1px solid #ddd;
+                padding: 8px;
+            }
+            
+            /* 隐藏浏览器默认的页眉页脚 */
+            @page {
+                margin-top: 0;
+                margin-bottom: 0;
+                @top-center {
+                    content: "" !important;
+                }
+                @bottom-left {
+                    content: "" !important;
+                }
+                @bottom-right {
+                    content: "" !important;
+                }
+            }
+            
+            /* 兼容不同浏览器的页眉页脚隐藏方案 */
+            body {
+                -webkit-print-color-adjust: exact;
+            }
+            
+            /* 确保没有额外的页眉页脚内容 */
+            html::before,
+            html::after,
+            body::before,
+            body::after {
+                display: none !important;
+                content: "" !important;
+            }
+            
+            /* 确保工作经历中时间字段的显示位置与预览模式一致 */
+            .experience-card .flex.flex-col.md\:flex-row.justify-between.items-start {
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: flex-start !important;
+            }
+            
+            /* 确保项目经验中时间字段的显示位置与预览模式一致 */
+            .project-card .flex.flex-col.md\:flex-row.justify-between.items-start {
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: flex-start !important;
+            }
+            
+            /* 确保时间字段在小屏幕和打印预览中都能正确显示 */
+            .text-gray-500.m-0.flex.flex-col.items-start {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+            }
+        }
+    </style>
+</head>
+<body class="font-sans text-gray-800">
+    <!-- 顶部导航 -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-file-alt text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold text-dark">简历生成器</h1>
+            </div>
+            <div class="flex space-x-4">
+                <button id="saveBtn" class="flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-all-300">
+                    <i class="fas fa-save mr-2"></i>保存
+                </button>
+
+                <button id="downloadBtn" class="flex items-center px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition-all-300">
+                    <i class="fas fa-print mr-2"></i>打印预览
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容区 -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- 模式切换 -->
+        <div class="mb-8 flex justify-center">
+            <div class="inline-flex bg-gray-100 p-1 rounded-lg">
+                <button id="editModeBtn" class="px-6 py-2 rounded-md bg-primary text-white font-medium">编辑模式</button>
+                <button id="previewModeBtn" class="px-6 py-2 rounded-md text-gray-700 font-medium hover:bg-gray-200 transition-all-300">预览模式</button>
+            </div>
+        </div>
+        
+        <!-- 预览模式选择器已移除 -->
+
+        <!-- 编辑和预览区域 -->
+        <div id="editorPreviewContainer" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- 左右两列布局，左侧编辑，右侧实时预览 -->
+            <style id="dynamic-layout">
+                /* 编辑模式下的预览区域样式 */
+                #editorPanel:not(.hidden) + #previewPanel {
+                    display: block;
+                    margin-top: 0;
+                    margin-bottom: 0;
+                }
+                
+                #editorPanel:not(.hidden) + #previewPanel .resume-preview {
+                    max-width: 100%;
+                    width: 100%;
+                    margin: 0;
+                    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+                }
+                
+                /* 预览模式下，修改整个容器的布局为居中显示 */
+                #editorPanel.hidden ~ #previewPanel {
+                    grid-column: 1 / -1; /* 让预览面板占据所有列 */
+                    display: flex;
+                    justify-content: center;
+                    align-items: flex-start;
+                    margin-top: 2rem;
+                    margin-bottom: 2rem;
+                }
+                
+                #editorPanel.hidden ~ #previewPanel .resume-preview {
+                    max-width: 800px;
+                    width: 100%;
+                    margin: 0 auto;
+                    transform: scale(0.95);
+                    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+                }
+                
+                /* 预览模式下修改容器布局为单行 */
+                #editorPanel.hidden + #previewPanel {
+                    display: flex;
+                    justify-content: center;
+                    align-items: flex-start;
+                }
+                
+                /* 确保在小屏幕上也能良好显示 */
+                @media (max-width: 768px) {
+                    #editorPanel:not(.hidden) + #previewPanel .resume-preview {
+                        max-width: 100%;
+                        margin: 0;
+                    }
+                }
+            </style>
+            <!-- 编辑区 -->
+            <div id="editorPanel" class="animate-fadeIn">
+                <div class="bg-white rounded-xl shadow-md p-6 h-full">
+                    <h2 class="text-2xl font-bold mb-6 pb-2 border-b border-gray-200">编辑个人信息</h2>
+                    
+                    <!-- 个人基本信息 -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold mb-4 text-primary">基本信息</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">姓名</label>
+                                <input type="text" id="fullName" class="editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" value="Jerry">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">职位</label>
+                                <input type="text" id="jobTitle" class="editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" value="AI工程师">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">邮箱</label>
+                                <input type="email" id="email" class="editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" value="jerry@qq.com">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">电话</label>
+                                <input type="tel" id="phone" class="editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" value="188-8888-8888">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">所在地</label>
+                                <input type="text" id="location" class="editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" value="上海">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">头像URL</label>
+                                <input type="text" id="avatarUrl" class="editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" value="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEBp8powZ_5AnbpueOI0Atuo86tM6bdRwACHxoAAr9DCVatgkWcyt3sfDYE.png">
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">个人简介</label>
+                            <textarea id="bio" class="editor-textarea w-full px-3 py-2 border border-gray-300 rounded-lg h-24" rows="4">具有6年经验的数据库工程师，专注于MySQL和Redis技术栈，热衷于创造优雅的客户体验和高效的解决方案。</textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- 社交链接 -->
+                    <div class="mb-8">
+                        <h3 class="text-lg font-semibold mb-4 text-primary">社交链接</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">LinkedIn</label>
+                                <input type="url" id="linkedin" class="editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" value="https://linkedin.com/">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">GitHub</label>
+                                <input type="url" id="github" class="editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" value="https://github.com/">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">博客</label>
+                                <input type="url" id="blog" class="editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" value="https://blog.csdn.net">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 技能设置 -->
+                    <div class="mb-8">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-primary">技能设置</h3>
+                            <button id="addSkillCategory" class="text-primary hover:text-primary/80 text-sm flex items-center">
+                                <i class="fas fa-plus mr-1"></i> 添加分类
+                            </button>
+                        </div>
+                        
+                        <div id="skillCategoriesContainer" class="space-y-8">
+                            <!-- 数据库技能分类 -->
+                            <div class="skill-category bg-gray-50 p-4 rounded-lg">
+                                <div class="flex justify-between items-center mb-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 bg-purple-600 rounded-md flex items-center justify-center text-white">
+                                            <i class="fas fa-database"></i>
+                                        </div>
+                                        <input type="text" class="skill-category-name text-gray-700 font-medium border-b-2 border-transparent focus:border-purple-600 px-2 py-1" value="数据库" readonly>
+                                        <button class="edit-category-name text-gray-500 hover:text-purple-600">
+                                            <i class="fas fa-pen text-sm"></i>
+                                        </button>
+                                    </div>
+                                    <button class="delete-skill-category text-red-500 hover:text-red-700">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                                <div class="skill-items space-y-4">
+                                    <!-- MySQL -->
+                                    <div class="skill-item">
+                                        <div class="flex justify-between mb-1">
+                                            <div class="flex items-center gap-2">
+                                                <input type="text" class="skill-name text-sm font-medium text-gray-700 border-b-2 border-transparent focus:border-purple-600 px-2 py-0.5 w-24" value="MySQL" readonly>
+                                        <button class="edit-skill-name text-gray-500 hover:text-purple-600">
+                                            <i class="fas fa-pen text-xs"></i>
+                                        </button>
+                                            </div>
+                                            <span class="skill-value text-sm text-gray-500">8</span>
+                                        </div>
+                                        <input type="range" class="skill-range w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600" min="1" max="10" value="8">
+                                    </div>
+                                    <!-- Redis -->
+                                    <div class="skill-item">
+                                        <div class="flex justify-between mb-1">
+                                            <div class="flex items-center gap-2">
+                                                <input type="text" class="skill-name text-sm font-medium text-gray-700 border-b-2 border-transparent focus:border-purple-600 px-2 py-0.5 w-24" value="Redis" readonly>
+                                        <button class="edit-skill-name text-gray-500 hover:text-purple-600">
+                                            <i class="fas fa-pen text-xs"></i>
+                                        </button>
+                                            </div>
+                                            <span class="skill-value text-sm text-gray-500">8</span>
+                                        </div>
+                                        <input type="range" class="skill-range w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600" min="1" max="10" value="8">
+                                    </div>
+                                    <!-- Oceanbase -->
+                                    <div class="skill-item">
+                                        <div class="flex justify-between mb-1">
+                                            <div class="flex items-center gap-2">
+                                                <input type="text" class="skill-name text-sm font-medium text-gray-700 border-b-2 border-transparent focus:border-purple-600 px-2 py-0.5 w-24" value="Oceanbase" readonly>
+                                        <button class="edit-skill-name text-gray-500 hover:text-purple-600">
+                                            <i class="fas fa-pen text-xs"></i>
+                                        </button>
+                                            </div>
+                                            <span class="skill-value text-sm text-gray-500">4</span>
+                                        </div>
+                                        <input type="range" class="skill-range w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600" min="1" max="10" value="4">
+                                    </div>
+                                </div>
+                                <button class="add-skill mt-3 text-purple-600 hover:text-purple-600/80 text-sm flex items-center">
+                                    <i class="fas fa-plus mr-1"></i> 添加技能
+                                </button>
+                            </div>
+                            
+                            <!-- 工具技能分类 -->
+                            <div class="skill-category bg-gray-50 p-4 rounded-lg">
+                                <div class="flex justify-between items-center mb-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 bg-green-600 rounded-md flex items-center justify-center text-white">
+                                            <i class="fas fa-tools"></i>
+                                        </div>
+                                        <input type="text" class="skill-category-name text-gray-700 font-medium border-b-2 border-transparent focus:border-green-600 px-2 py-1" value="工具" readonly>
+                                        <button class="edit-category-name text-gray-500 hover:text-green-600">
+                                            <i class="fas fa-pen text-sm"></i>
+                                        </button>
+                                    </div>
+                                    <button class="delete-skill-category text-red-500 hover:text-red-700">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                                <div class="skill-items space-y-4">
+                                    <!-- Shell -->
+                                    <div class="skill-item">
+                                        <div class="flex justify-between mb-1">
+                                            <div class="flex items-center gap-2">
+                                                <input type="text" class="skill-name text-sm font-medium text-gray-700 border-b-2 border-transparent focus:border-green-600 px-2 py-0.5 w-24" value="Shell" readonly>
+                                        <button class="edit-skill-name text-gray-500 hover:text-green-600">
+                                            <i class="fas fa-pen text-xs"></i>
+                                        </button>
+                                            </div>
+                                            <span class="skill-value text-sm text-gray-500">8</span>
+                                        </div>
+                                        <input type="range" class="skill-range w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-600" min="1" max="10" value="8">
+                                    </div>
+                                    <!-- Python -->
+                                    <div class="skill-item">
+                                        <div class="flex justify-between mb-1">
+                                            <div class="flex items-center gap-2">
+                                                <input type="text" class="skill-name text-sm font-medium text-gray-700 border-b-2 border-transparent focus:border-green-600 px-2 py-0.5 w-24" value="Python" readonly>
+                                        <button class="edit-skill-name text-gray-500 hover:text-green-600">
+                                            <i class="fas fa-pen text-xs"></i>
+                                        </button>
+                                            </div>
+                                            <span class="skill-value text-sm text-gray-500">6</span>
+                                        </div>
+                                        <input type="range" class="skill-range w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-600" min="1" max="10" value="6">
+                                    </div>
+                                </div>
+                                <button class="add-skill mt-3 text-green-600 hover:text-green-600/80 text-sm flex items-center">
+                                    <i class="fas fa-plus mr-1"></i> 添加技能
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 工作经历 -->
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-primary">工作经历</h3>
+                            <button id="addExperience" class="text-primary hover:text-primary/80 text-sm flex items-center">
+                                <i class="fas fa-plus mr-1"></i> 添加经历
+                            </button>
+                        </div>
+                        
+                        <div id="experiencesContainer" class="space-y-6">
+                            <!-- 工作经历1 -->
+                            <div class="experience-item p-4 border border-gray-200 rounded-lg">
+                                <div class="flex justify-end mb-2">
+                                    <button class="delete-experience text-red-500 hover:text-red-700">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">公司名称</label>
+                                        <input type="text" class="exp-company editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" value="上海爱可生信息技术股份有限公司">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">职位</label>
+                                        <input type="text" class="exp-position editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" value="数据库工程师">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">开始日期</label>
+                                        <input type="text" class="exp-start editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" value="2021年05月">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">结束日期</label>
+                                        <input type="text" class="exp-end editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" value="至今">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">工作地点</label>
+                                        <input type="text" class="exp-location editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" value="上海">
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">工作描述</label>
+                                    <textarea class="exp-description editor-textarea w-full px-3 py-2 border border-gray-300 rounded-lg h-16" rows="3">负责MySQL、Redis数据库日常运维和自动化建设</textarea>
+                                </div>
+                                <div class="mt-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">主要成就 (每行一项)</label>
+                                    <textarea class="exp-achievements editor-textarea w-full px-3 py-2 border border-gray-300 rounded-lg h-24" rows="4">客户范围: 星巴克、浦发、兴业消金
+解决数据库问题并提供SOP文档100+
+参与数据库迁移/升级/归档/备份实施套数100+
+以上项目维护过程中均是技术一号位</textarea>
+                                </div>
+                            </div>
+                            
+                            <!-- 工作经历2 -->
+                            <div class="experience-item p-4 border border-gray-200 rounded-lg">
+                                <div class="flex justify-end mb-2">
+                                    <button class="delete-experience text-red-500 hover:text-red-700">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">公司名称</label>
+                                        <input type="text" class="exp-company editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" value="5173 中国网络游戏服务网">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">职位</label>
+                                        <input type="text" class="exp-position editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" value="数据库工程师">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">开始日期</label>
+                                        <input type="text" class="exp-start editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" value="2020年06月">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">结束日期</label>
+                                        <input type="text" class="exp-end editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" value="2021年05月">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">工作地点</label>
+                                        <input type="text" class="exp-location editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" value="上海">
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">工作描述</label>
+                                    <textarea class="exp-description editor-textarea w-full px-3 py-2 border border-gray-300 rounded-lg h-16" rows="3">负责MySQL、SQL Server数据库日常运维</textarea>
+                                </div>
+                                <div class="mt-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">主要成就 (每行一项)</label>
+                                    <textarea class="exp-achievements editor-textarea w-full px-3 py-2 border border-gray-300 rounded-lg h-24" rows="4">负责数据库运维标准化，规范化及文档的编写
+监控和优化数据库的性能，实施数据库备份恢复</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 项目经验 -->
+                    <div class="mt-8">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-primary">项目经验</h3>
+                            <button id="addProject" class="text-primary hover:text-primary/80 text-sm flex items-center">
+                                <i class="fas fa-plus mr-1"></i> 添加项目
+                            </button>
+                        </div>
+                        
+                        <div id="projectsContainer" class="space-y-6">
+                            <!-- 项目经验项 -->
+                            <div class="project-item p-4 border border-gray-200 rounded-lg">
+                                <div class="flex justify-end mb-2">
+                                    <button class="delete-project text-red-500 hover:text-red-700">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">项目名称</label>
+                                        <input type="text" class="project-title editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" value="Dream项目">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">公司/组织</label>
+                                        <input type="text" class="project-company editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" value="Jerry 技术有限公司">
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">项目周期</label>
+                                        <input type="text" class="project-period editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" value="2021年5月 - 至今">
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">项目描述</label>
+                                    <textarea class="project-description editor-textarea w-full px-3 py-2 border border-gray-300 rounded-lg h-20" rows="4">开发并维护公司核心电商平台，支持千万级用户访问围绕数据库全生命周期开展运维管理工作，涵盖迁移升级、备份恢复、规范建设、高可用保障等多个维度，采用多样化技术手段与标准化流程，确保数据库系统稳定运行，支撑业务高效开展，服务规模涉及数百套数据库及集群。</textarea>
+                                </div>
+                                <div class="mt-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">技术栈 (用英文逗号分隔)</label>
+                                    <input type="text" class="project-technologies editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" value="MySQL, Redis">
+                                </div>
+                                <div class="mt-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">项目成就 (每行一项)</label>
+                                    <textarea class="project-achievements editor-textarea w-full px-3 py-2 border border-gray-300 rounded-lg h-24" rows="4">完成500+次分钟级停机窗口的数据库迁移升级操作
+制定100+SOP文档，建立标准化运维与问题处理流程
+开展20+次知识分享活动，提升团队与客户技术能力</textarea>
+                                </div>
+                                
+                                <!-- 核心工作内容 -->
+                                <div class="mt-4">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <label class="block text-sm font-medium text-gray-700">核心工作内容</label>
+                                        <button class="add-core-category text-primary hover:text-primary/80 text-sm flex items-center">
+                                            <i class="fas fa-plus mr-1"></i> 添加分类
+                                        </button>
+                                    </div>
+                                    <div class="core-work-content space-y-3">
+                                        <!-- 默认核心工作分类 -->
+                                        <div class="core-category p-3 border border-gray-200 rounded-lg">
+                                            <div class="flex justify-between items-center mb-3">
+                                                <input type="text" class="core-category-name w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" value="数据库运维">
+                                                <button class="delete-core-category text-red-500 hover:text-red-700 text-sm p-1.5 rounded-lg hover:bg-red-50 transition-colors">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                            <div class="flex justify-between items-center mb-2">
+                                                <span class="text-sm text-gray-600">工作内容：</span>
+                                                <button class="add-core-item bg-green-100 text-green-700 hover:bg-green-200 px-3 py-1 rounded-lg text-sm transition-colors">
+                                                    <i class="fas fa-plus mr-1"></i>添加内容
+                                                </button>
+                                            </div>
+                                            <div class="core-items space-y-2">
+                                                <div class="core-item flex items-center gap-2">
+                                                    <input type="text" class="core-item-content flex-grow px-3 py-1.5 border border-gray-300 rounded-lg text-sm" value="负责数据库日常监控和性能优化">
+                                                    <button class="delete-core-item text-red-500 hover:text-red-700 text-sm p-1.5 rounded-lg hover:bg-red-50 transition-colors">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 教育背景 -->
+                    <div class="mt-12">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-primary">教育背景</h3>
+                            <button id="addEducation" class="text-primary hover:text-primary/80 text-sm flex items-center">
+                                <i class="fas fa-plus mr-1"></i> 添加教育经历
+                            </button>
+                        </div>
+                        
+                        <div id="educationContainer" class="space-y-6">
+                            <!-- 教育背景项 -->
+                            <div class="education-item p-4 border border-gray-200 rounded-lg">
+                                <div class="flex justify-end mb-2">
+                                    <button class="delete-education text-red-500 hover:text-red-700">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">学校名称</label>
+                                        <input type="text" class="education-school editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" value="中国大学">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">学历/专业</label>
+                                        <input type="text" class="education-degree editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" value="祖国统一">
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">在校期间</label>
+                                        <input type="text" class="education-period editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" value="2014年9月-2018年6月">
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">教育描述</label>
+                                    <textarea class="education-description editor-textarea w-full px-3 py-2 border border-gray-300 rounded-lg h-16" rows="3">主修民富国强，获得优秀毕业生称号。</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 预览区 -->
+            <div id="previewPanel" class="animate-fadeIn animate-delay-100">
+                <div id="resumePreview" class="resume-preview rounded-xl overflow-hidden">
+                    <!-- 个人信息部分 -->
+                    <div class="hero-section min-h-[100vh] flex items-center justify-center relative overflow-hidden">
+                        <!-- 移除所有背景装饰 -->
+                        <div class="absolute inset-0 opacity-0">
+                            <!-- 移除蓝色背景，仅保留布局结构 -->
+                            <div class="absolute top-20 left-20 w-72 h-72 rounded-full filter blur-3xl opacity-0"></div>
+                            <!-- 移除黑色渐变背景，仅保留布局结构 -->
+                            <div class="absolute bottom-20 right-20 w-96 h-96 rounded-full filter blur-3xl opacity-0"></div>
+                        </div>
+
+                        <!-- 内容容器 -->
+                        <div class="content-container relative z-10 px-6 py-20">
+                            <!-- 英雄区网格布局 -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-20 items-center max-w-2xl mx-auto">
+                                <!-- 左侧内容 -->
+                                <div class="flex flex-col gap-10">
+                                    <div class="flex flex-col gap-8">
+                                        <div class="flex flex-col items-start gap-2.5">
+                                            <h1 id="previewName" class="font-artistic text-[clamp(3rem,8vw,4.5rem)] leading-tight m-0 text-dark">
+                                                Jerry
+                                            </h1>
+                                            <div class="h-1 w-24 bg-primary"></div>
+                                        </div>
+
+                                        <p id="previewTitle" class="text-[clamp(1.25rem,3vw,1.75rem)] text-gray-600 font-light m-0">
+                                            AI工程师 
+                                        </p>
+
+                                        <p id="previewBio" class="text-[clamp(1rem,2vw,1.25rem)] text-gray-600 leading-relaxed max-w-md m-0">
+                                            具有6年经验的数据库工程师，专注于MySQL和Redis技术栈，热衷于创造优雅的客户体验和高效的解决方案。
+                                        </p>
+                                    </div>
+
+                                    <!-- 联系信息 -->
+                                    <div class="flex flex-col gap-5">
+                                        <div class="flex items-center gap-4 text-gray-600">
+                                            <i class="fas fa-envelope w-6 h-6 text-primary"></i>
+                                            <span id="previewEmail" class="font-light">jerrylwt@qq.com</span>
+                                        </div>
+                                        <div class="flex items-center gap-4 text-gray-600">
+                                            <i class="fas fa-phone w-6 h-6 text-primary"></i>
+                                            <span id="previewPhone" class="font-light">188-8888-8888</span>
+                                        </div>
+                                        <div class="flex items-center gap-4 text-gray-600">
+                                            <i class="fas fa-map-marker-alt w-6 h-6 text-primary"></i>
+                                            <span id="previewLocation" class="font-light">上海</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- 社交链接 -->
+                                    <div class="flex gap-5">
+                                        <a id="previewLinkedin" href="https://linkedin.com/in/leiwenting" target="_blank" class="social-icon">
+                                            <i class="fab fa-linkedin"></i>
+                                        </a>
+                                        <a id="previewGithub" href="https://github.com/JerryAction" target="_blank" class="social-icon">
+                                            <i class="fab fa-github"></i>
+                                        </a>
+                                        <a id="previewBlog" href="https://blog.csdn.net/baidu_34007305?spm=1000.2115.3001.5343" target="_blank" class="social-icon">
+                                            <i class="fas fa-globe"></i>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <!-- 右侧头像 -->
+                                <div class="flex justify-center">
+                                    <div class="relative">
+                                        <div class="w-96 h-96 rounded-full bg-white p-3 border-4 border-primary">
+                                            <img id="previewAvatar"
+                                                src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEBp8powZ_5AnbpueOI0Atuo86tM6bdRwACHxoAAr9DCVatgkWcyt3sfDYE.png"
+                                                alt="Jerry"
+                                                class="w-full h-full object-cover rounded-full"
+                                            />
+                                        </div>
+                                        <div class="absolute -bottom-4 -right-4 w-28 h-28 bg-white rounded-full shadow-lg flex items-center justify-center">
+                                            <div class="w-18 h-18 bg-primary rounded-full flex items-center justify-center text-white font-bold text-xl">
+                                                CV
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 技能部分 -->
+                    <section class="py-30 bg-light mt-8">
+                        <div class="content-container">
+                            <div class="text-left mb-4 ml-5">
+                                <h2 class="text-xl font-semibold text-dark">专业技能</h2>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-2xl mx-auto">
+                                <!-- 数据库 -->
+                                <div class="bg-white rounded-2xl p-10 shadow-sm">
+                                    <div class="flex items-center gap-4 mb-8">
+                                        <div class="w-14 h-14 bg-secondary rounded-xl flex items-center justify-center text-white">
+                                            <i class="fas fa-database text-2xl"></i>
+                                        </div>
+                                        <h3 class="text-1.5xl font-semibold text-dark m-0">数据库</h3>
+                                    </div>
+                                    <div class="flex flex-col gap-5">
+                                        <div>
+                                            <div class="flex justify-between mb-2.5">
+                                                <span class="text-gray-800 font-medium">MySQL</span>
+                                                <span class="text-gray-500 text-sm"><span id="previewMysql">80</span>%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                                <div id="previewMysqlBar" class="skill-bar h-2.5 bg-secondary rounded-full" style="width: 80%"></div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="flex justify-between mb-2.5">
+                                                <span class="text-gray-800 font-medium">Redis</span>
+                                                <span class="text-gray-500 text-sm"><span id="previewRedis">80</span>%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                                <div id="previewRedisBar" class="skill-bar h-2.5 bg-secondary rounded-full" style="width: 80%"></div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="flex justify-between mb-2.5">
+                                                <span class="text-gray-800 font-medium">Oceanbase</span>
+                                                <span class="text-gray-500 text-sm"><span id="previewOceanbase">40</span>%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                                <div id="previewOceanbaseBar" class="skill-bar h-2.5 bg-secondary rounded-full" style="width: 40%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 工具 -->
+                                <div class="bg-white rounded-2xl p-10 shadow-sm">
+                                    <div class="flex items-center gap-4 mb-8">
+                                        <div class="w-14 h-14 bg-success rounded-xl flex items-center justify-center text-white">
+                                            <i class="fas fa-tools text-2xl"></i>
+                                        </div>
+                                        <h3 class="text-1.5xl font-semibold text-dark m-0">工具</h3>
+                                    </div>
+                                    <div class="flex flex-col gap-5">
+                                        <div>
+                                            <div class="flex justify-between mb-2.5">
+                                                <span class="text-gray-800 font-medium">Shell</span>
+                                                <span class="text-gray-500 text-sm"><span id="previewShell">80</span>%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                                <div id="previewShellBar" class="skill-bar h-2.5 bg-success rounded-full" style="width: 80%"></div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="flex justify-between mb-2.5">
+                                                <span class="text-gray-800 font-medium">Python</span>
+                                                <span class="text-gray-500 text-sm"><span id="previewPython">60</span>%</span>
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                                <div id="previewPythonBar" class="skill-bar h-2.5 bg-success rounded-full" style="width: 60%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 工作经历 -->
+                    <section class="py-25 bg-white mt-8">
+                        <div class="content-container">
+                            <div class="text-left mb-4 ml-5">
+                                <h2 class="text-xl font-semibold text-dark">工作经历</h2>
+                            </div>
+
+                            <div id="previewExperiences" class="relative w-[100%] mx-auto px-5">
+                                <!-- 时间线 -->
+                                <div class="absolute left-5 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+
+                                <div class="flex flex-col gap-12">
+                                    <!-- 工作经历1 -->
+                                    <div class="experience-preview relative pl-25 animate-fadeIn animate-delay-100">
+                                        <div class="experience-card bg-light rounded-2xl p-8 shadow-sm transition-all duration-300 max-w-none">
+                                            <div class="flex flex-col gap-7">
+                                                <div class="flex flex-col md:flex-row justify-between items-start gap-5">
+                                                    <div>
+                                                        <h3 class="text-1.5xl font-semibold text-dark mb-2">
+                                                            数据库工程师
+                                                        </h3>
+                                                        <p class="text-lg text-primary font-medium m-0">
+                                                            上海爱可生信息技术股份有限公司
+                                                        </p>
+                                                    </div>
+                                                    <div class="text-gray-500 m-0 flex flex-col items-start gap-1">
+                                                        <span class="flex items-center gap-1"><i class="far fa-calendar text-sm text-gray-600"></i> 2021年05月 - 至今</span>
+                                                        <span class="flex items-center gap-1">
+                                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                <path d="M12 2C8.13401 2 5 5.13401 5 9C5 10.6569 5.57868 12.2104 6.5 13.5L12 21L17.5 13.5C18.4213 12.2104 18.9999 10.6569 18.9999 9C18.9999 5.13401 15.866 2 12 2Z" stroke="#4b5563" stroke-width="1.5"/>
+                                                                <circle cx="12" cy="8" r="2" stroke="#4b5563" stroke-width="1.5"/>
+                                                            </svg>
+                                                            <span class="text-sm text-gray-600">上海</span>
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <p class="text-gray-700 leading-relaxed m-0">
+                                                    负责MySQL、Redis数据库日常运维和自动化建设
+                                                </p>
+
+                                                <div>
+                                                    <h4 class="text-lg font-medium text-dark mb-3">主要成就</h4>
+                                                    <ul class="m-0 p-0 list-none">
+                                                        <li class="flex items-start gap-3 mb-2.5">
+                                                            <span class="text-primary font-bold">→</span>
+                                                            <span class="text-gray-700">客户范围: 星巴克、浦发、兴业消金</span>
+                                                        </li>
+                                                        <li class="flex items-start gap-4 mb-3">
+                                                            <span class="text-primary font-bold">→</span>
+                                                            <span class="text-gray-700">解决数据库问题并提供SOP文档100+</span>
+                                                        </li>
+                                                        <li class="flex items-start gap-4 mb-3">
+                                                            <span class="text-primary font-bold">→</span>
+                                                            <span class="text-gray-700">参与数据库迁移/升级/归档/备份实施套数100+</span>
+                                                        </li>
+                                                        <li class="flex items-start gap-4">
+                                                            <span class="text-primary font-bold">→</span>
+                                                            <span class="text-gray-700">以上项目维护过程中均是技术一号位</span>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 工作经历2 -->
+                                    <div class="experience-preview relative pl-25 animate-fadeIn animate-delay-200">
+                                        <div class="experience-card bg-light rounded-2xl p-8 shadow-sm transition-all duration-300 max-w-none">
+                                            <div class="flex flex-col gap-7">
+                                                <div class="flex flex-col md:flex-row justify-between items-start gap-5">
+                                                    <div>
+                                                        <h3 class="text-1.5xl font-semibold text-dark mb-2">
+                                                            数据库工程师
+                                                        </h3>
+                                                        <p class="text-lg text-primary font-medium m-0">
+                                                            5173 中国网络游戏服务网
+                                                        </p>
+                                                    </div>
+                                                    <div class="text-gray-500 m-0 flex flex-col items-start gap-1">
+                                                        <span class="flex items-center gap-1"><i class="far fa-calendar text-sm text-gray-600"></i> 2020年06月 - 2021年05月</span>
+                                                        <span class="flex items-center gap-1">
+                                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                <path d="M12 2C8.13401 2 5 5.13401 5 9C5 10.6569 5.57868 12.2104 6.5 13.5L12 21L17.5 13.5C18.4213 12.2104 18.9999 10.6569 18.9999 9C18.9999 5.13401 15.866 2 12 2Z" stroke="#4b5563" stroke-width="1.5"/>
+                                                                <circle cx="12" cy="8" r="2" stroke="#4b5563" stroke-width="1.5"/>
+                                                            </svg>
+                                                            <span class="text-sm text-gray-600">上海</span>
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <p class="text-gray-700 leading-relaxed m-0">
+                                                    负责MySQL、SQL Server数据库日常运维
+                                                </p>
+
+                                                <div>
+                                                    <h4 class="text-lg font-medium text-dark mb-3">主要成就</h4>
+                                                    <ul class="m-0 p-0 list-none">
+                                                        <li class="flex items-start gap-3 mb-2.5">
+                                                            <span class="text-primary font-bold">→</span>
+                                                            <span class="text-gray-700">负责数据库运维标准化，规范化及文档的编写</span>
+                                                        </li>
+                                                        <li class="flex items-start gap-4">
+                                                            <span class="text-primary font-bold">→</span>
+                                                            <span class="text-gray-700">监控和优化数据库的性能，实施数据库备份恢复</span>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 项目经验 -->
+                    <section class="py-25 bg-white mt-8">
+                        <div class="content-container">
+                            <div class="text-left mb-4 ml-5">
+                                <h2 class="text-xl font-semibold text-dark">项目经验</h2>
+                            </div>
+                            
+                            <div id="previewProjects" class="relative w-[100%] mx-auto px-5">
+                                <!-- 时间线 -->
+                                <div class="absolute left-5 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+                                
+                                <div class="flex flex-col gap-12">
+                                    <!-- 项目经验会通过JS动态生成 -->
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 教育背景 -->
+                    <section class="mt-8">
+                        <!-- 标题移到content-container外部，避免灰色背景 -->
+                        <div class="text-left mb-4 ml-5">
+                            <h2 class="text-xl font-semibold text-dark">教育背景</h2>
+                        </div>
+                        
+                        <div class="bg-light py-25">
+                            <div class="content-container">
+                                <div id="previewEducation" class="relative w-[100%] mx-auto px-5">
+                                <!-- 时间线 -->
+                                <div class="absolute left-5 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+                                
+                                <div class="flex flex-col gap-12">
+                                    <!-- 教育背景会通过JS动态生成 -->
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="mb-2">个人简历生成器 &copy; 2025-2077</p>
+            <p class="text-sm text-gray-400">编辑您的信息，创建专业简历</p>
+        </div>
+    </footer>
+
+    <script>
+        // DOM元素缓存
+        const DOM = {
+            // 面板元素
+            editorPanel: document.getElementById('editorPanel'),
+            previewPanel: document.getElementById('previewPanel'),
+            previewOptions: document.getElementById('previewOptions'),
+            resumePreview: document.getElementById('resumePreview'),
+            
+            // 模式切换按钮
+            editModeBtn: document.getElementById('editModeBtn'),
+            previewModeBtn: document.getElementById('previewModeBtn'),
+            
+            // 保存和下载按钮
+            saveBtn: document.getElementById('saveBtn'),
+            downloadBtn: document.getElementById('downloadBtn'),
+            
+            // 添加工作经历按钮
+            addExperienceBtn: document.getElementById('addExperience'),
+            experiencesContainer: document.getElementById('experiencesContainer'),
+            
+            // 基本信息输入框
+            fullNameInput: document.getElementById('fullName'),
+            jobTitleInput: document.getElementById('jobTitle'),
+            emailInput: document.getElementById('email'),
+            phoneInput: document.getElementById('phone'),
+            locationInput: document.getElementById('location'),
+            avatarUrlInput: document.getElementById('avatarUrl'),
+            bioInput: document.getElementById('bio'),
+            
+            // 社交链接输入框
+            linkedinInput: document.getElementById('linkedin'),
+            githubInput: document.getElementById('github'),
+            blogInput: document.getElementById('blog'),
+            
+            // 技能相关
+            skillCategoriesContainer: document.getElementById('skillCategoriesContainer'),
+            addSkillCategoryBtn: document.getElementById('addSkillCategory'),
+            
+            // 预览区域元素
+            previewName: document.getElementById('previewName'),
+            previewTitle: document.getElementById('previewTitle'),
+            previewEmail: document.getElementById('previewEmail'),
+            previewPhone: document.getElementById('previewPhone'),
+            previewLocation: document.getElementById('previewLocation'),
+            previewAvatar: document.getElementById('previewAvatar'),
+            previewBio: document.getElementById('previewBio'),
+            previewLinkedin: document.getElementById('previewLinkedin'),
+            previewGithub: document.getElementById('previewGithub'),
+            previewBlog: document.getElementById('previewBlog'),
+            
+            // 工作经历预览容器
+            previewExperiences: document.getElementById('previewExperiences'),
+            
+            // 项目经验相关
+            addProjectBtn: document.getElementById('addProject'),
+            projectsContainer: document.getElementById('projectsContainer'),
+            previewProjects: document.getElementById('previewProjects'),
+            
+            // 教育背景相关
+            addEducationBtn: document.getElementById('addEducation'),
+            educationContainer: document.getElementById('educationContainer'),
+            previewEducation: document.getElementById('previewEducation')
+        };
+        
+        // 配置项
+        const CONFIG = {
+            API_BASE_URL: '/api', // 使用相对路径，与项目配置保持一致
+            STORAGE_KEY: 'resumeData',
+            ANIMATION_DELAY: 100
+        };
+        
+        // 工具函数
+        const Utils = {
+            // 更新技能显示
+            updateSkill: function(input, valueDisplay, previewValue, previewBar) {
+                const value = input.value;
+                valueDisplay.textContent = `${value}%`;
+                previewValue.textContent = value;
+                previewBar.style.width = `${value}%`;
+            },
+            
+            // 显示通知
+            showNotification: function(message, type = 'success') {
+                // 创建通知元素
+                const notification = document.createElement('div');
+                notification.className = `fixed top-4 right-4 px-4 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300 translate-y-[-100px] opacity-0`;
+                
+                // 根据类型设置样式
+                if (type === 'success') {
+                    notification.classList.add('bg-green-600', 'text-white');
+                    notification.innerHTML = `<i class="fas fa-check-circle mr-2"></i>${message}`;
+                } else if (type === 'error') {
+                    notification.classList.add('bg-red-600', 'text-white');
+                    notification.innerHTML = `<i class="fas fa-exclamation-circle mr-2"></i>${message}`;
+                } else if (type === 'info') {
+                    notification.classList.add('bg-blue-600', 'text-white');
+                    notification.innerHTML = `<i class="fas fa-info-circle mr-2"></i>${message}`;
+                }
+                
+                // 添加到文档
+                document.body.appendChild(notification);
+                
+                // 显示通知
+                setTimeout(() => {
+                    notification.classList.remove('translate-y-[-100px]', 'opacity-0');
+                }, 10);
+                
+                // 3秒后隐藏通知
+                setTimeout(() => {
+                    notification.classList.add('translate-y-[-100px]', 'opacity-0');
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, 3000);
+            },
+            
+            // 收集表单数据
+            collectFormData: function() {
+                const formData = {
+                    fullName: DOM.fullNameInput.value,
+                    jobTitle: DOM.jobTitleInput.value,
+                    email: DOM.emailInput.value,
+                    phone: DOM.phoneInput.value,
+                    location: DOM.locationInput.value,
+                    avatarUrl: DOM.avatarUrlInput.value,
+                    bio: DOM.bioInput.value,
+                    social: {
+                        linkedin: DOM.linkedinInput.value,
+                        github: DOM.githubInput.value,
+                        blog: DOM.blogInput.value
+                    },
+                    skills: [],
+                    experiences: []
+                };
+                
+                // 收集技能分类和技能项
+                document.querySelectorAll('.skill-category').forEach((category, categoryIndex) => {
+                    const categoryName = category.querySelector('.category-name').value;
+                    const skills = [];
+                    
+                    category.querySelectorAll('.skill-item').forEach((skill, skillIndex) => {
+                        const skillName = skill.querySelector('.skill-name').value;
+                        const skillLevel = skill.querySelector('.skill-level').value;
+                        
+                        skills.push({
+                            id: `skill-${categoryIndex}-${skillIndex}`,
+                            name: skillName,
+                            level: skillLevel
+                        });
+                    });
+                    
+                    formData.skills.push({
+                        id: `category-${categoryIndex}`,
+                        name: categoryName,
+                        skills: skills
+                    });
+                });
+                
+                // 收集工作经历
+                document.querySelectorAll('.experience-item').forEach(item => {
+                    formData.experiences.push({
+                        company: item.querySelector('.exp-company').value,
+                        position: item.querySelector('.exp-position').value,
+                        startDate: item.querySelector('.exp-start').value,
+                        endDate: item.querySelector('.exp-end').value,
+                        location: item.querySelector('.exp-location').value,
+                        description: item.querySelector('.exp-description').value,
+                        achievements: item.querySelector('.exp-achievements').value
+                    });
+                });
+                
+                // 收集项目经验数据
+                formData.projects = [];
+                document.querySelectorAll('.project-item').forEach(proj => {
+                    // 提取核心工作内容
+                    const coreCategories = proj.querySelectorAll('.core-category');
+                    const coreWork = Array.from(coreCategories).map(category => {
+                        const categoryName = category.querySelector('.core-category-name')?.value || '';
+                        const coreItems = Array.from(category.querySelectorAll('.core-item-content')).map(item => 
+                            item.value || ''
+                        ).filter(item => item.trim());
+                        
+                        return {
+                            category: categoryName,
+                            items: coreItems
+                        };
+                    }).filter(cat => cat.category.trim() || cat.items.length > 0);
+                    
+                    formData.projects.push({
+                        name: proj.querySelector('.project-title')?.value || '',
+                        company: proj.querySelector('.project-company')?.value || '',
+                        period: proj.querySelector('.project-period')?.value || '',
+                        description: proj.querySelector('.project-description')?.value || '',
+                        technologies: proj.querySelector('.project-technologies')?.value || '',
+                        achievements: proj.querySelector('.project-achievements')?.value || '',
+                        coreWork: coreWork
+                    });
+                });
+                
+                // 过滤掉空项目
+                formData.projects = formData.projects.filter(proj => 
+                    proj.name || proj.description || proj.company || proj.technologies || proj.coreWork.length > 0
+                );
+                
+                return formData;
+            },
+            
+            // 验证表单数据
+            validateFormData: function(data) {
+                const errors = [];
+                
+                if (!data.fullName.trim()) {
+                    errors.push('请输入姓名');
+                }
+                
+                if (!data.jobTitle.trim()) {
+                    errors.push('请输入职位');
+                }
+                
+                if (!data.email.trim()) {
+                    errors.push('请输入邮箱');
+                } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+                    errors.push('请输入有效的邮箱地址');
+                }
+                
+                if (!data.phone.trim()) {
+                    errors.push('请输入电话');
+                }
+                
+                if (!data.location.trim()) {
+                    errors.push('请输入所在地');
+                }
+                
+                return {
+                    isValid: errors.length === 0,
+                    errors: errors
+                };
+            }
+        };
+        
+        // 模式切换功能
+        const ModeManager = {
+            init: function() {
+                DOM.editModeBtn.addEventListener('click', ModeManager.switchToEditMode);
+                DOM.previewModeBtn.addEventListener('click', ModeManager.switchToPreviewMode);
+            },
+            
+            switchToEditMode: function() {
+                console.log('Switching to edit mode');
+                
+                // 先移除所有可能的冲突类
+                DOM.editModeBtn.classList.remove('text-gray-700', 'hover:bg-gray-200', 'bg-gray-100');
+                DOM.previewModeBtn.classList.remove('bg-primary', 'text-white');
+                
+                // 然后添加需要的类
+                DOM.editModeBtn.classList.add('bg-primary', 'text-white');
+                DOM.previewModeBtn.classList.add('text-gray-700', 'hover:bg-gray-200');
+                
+                // 强制重绘以确保样式应用
+                void DOM.editModeBtn.offsetWidth;
+                
+                // 原有功能代码
+                DOM.editorPanel.classList.remove('hidden');
+                DOM.previewPanel.classList.remove('hidden');
+                DOM.previewOptions.classList.add('hidden');
+                DOM.resumePreview.classList.remove('max-w-md', 'full-preview');
+                
+                console.log('Edit mode button classes after update:', DOM.editModeBtn.className);
+            },
+            
+            switchToPreviewMode: function() {
+                DOM.editorPanel.classList.add('hidden');
+                DOM.previewPanel.classList.remove('hidden');
+                // 预览选项已移除
+                DOM.resumePreview.classList.remove('max-w-md');
+                DOM.resumePreview.classList.add('full-preview'); // 默认进入完整预览模式
+                DOM.previewModeBtn.classList.add('bg-primary', 'text-white');
+                DOM.previewModeBtn.classList.remove('text-gray-700', 'hover:bg-gray-200');
+                DOM.editModeBtn.classList.remove('bg-primary', 'text-white');
+                DOM.editModeBtn.classList.add('text-gray-700', 'hover:bg-gray-200');
+                
+                // 更新所有预览内容
+                if (window.updateBasicInfoPreview) {
+                    updateBasicInfoPreview();
+                }
+                
+                if (window.updateSocialLinksPreview) {
+                    updateSocialLinksPreview();
+                }
+                
+                if (window.ExperienceManager && window.ExperienceManager.updateExperiencePreviews) {
+                    ExperienceManager.updateExperiencePreviews();
+                }
+                
+                if (window.ProjectManager && window.ProjectManager.updateProjectPreviews) {
+                    ProjectManager.updateProjectPreviews();
+                }
+                
+                if (window.EducationManager && window.EducationManager.updateEducationPreviews) {
+                    EducationManager.updateEducationPreviews();
+                }
+                
+                if (window.SkillManager && window.SkillManager.updateSkillsPreview) {
+                    SkillManager.updateSkillsPreview();
+                }
+            },
+            
+            printResume: function() {
+                window.print();
+            }
+        };
+        
+        // 数据管理
+        const DataManager = {
+            init: function() {
+                // 保存到本地存储
+                DOM.saveBtn.addEventListener('click', this.saveToLocalStorage.bind(this));
+                
+                // 打印预览
+    DOM.downloadBtn.addEventListener('click', this.printResume.bind(this));
+                
+                // 页面加载时从本地存储加载数据
+                window.addEventListener('load', this.loadFromLocalStorage.bind(this));
+            },
+            
+            saveToLocalStorage: function() {
+                console.log('尝试保存数据...');
+                const formData = Utils.collectFormData();
+                console.log('收集的表单数据:', formData);
+                
+                // 验证必填字段，但允许保存即使有部分字段未填写
+                const validation = Utils.validateFormData(formData);
+                console.log('验证结果:', validation);
+                
+                if (!validation.isValid) {
+                    Utils.showNotification('部分必填信息未填写，但仍会保存已有的数据', 'info');
+                }
+                
+                try {
+                    // 保存到本地存储
+                    localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(formData));
+                    console.log('数据已保存到localStorage');
+                    
+                    // 显示保存成功提示
+                    Utils.showNotification(validation.isValid ? '保存成功' : '已保存部分数据');
+                } catch (error) {
+                    console.error('保存数据失败:', error);
+                    Utils.showNotification('保存数据失败，请重试', 'error');
+                }
+            },
+            
+
+            
+            loadFromLocalStorage: function() {
+                const savedData = localStorage.getItem(CONFIG.STORAGE_KEY);
+                if (savedData) {
+                    try {
+                        const data = JSON.parse(savedData);
+                        
+                        // 加载基本信息
+                        DOM.fullNameInput.value = data.fullName || '';
+                        DOM.jobTitleInput.value = data.jobTitle || '';
+                        DOM.emailInput.value = data.email || '';
+                        DOM.phoneInput.value = data.phone || '';
+                        DOM.locationInput.value = data.location || '';
+                        DOM.avatarUrlInput.value = data.avatarUrl || '';
+                        DOM.bioInput.value = data.bio || '';
+                        
+                        // 加载社交链接
+                        if (data.social) {
+                            DOM.linkedinInput.value = data.social.linkedin || '';
+                            DOM.githubInput.value = data.social.github || '';
+                            DOM.blogInput.value = data.social.blog || '';
+                        }
+                        
+                        // 加载技能
+                        if (data.skills && Array.isArray(data.skills)) {
+                            // 清空现有技能分类
+                            DOM.skillCategoriesContainer.innerHTML = '';
+                            
+                            // 标准化数据格式
+                            let skillCategories = data.skills;
+                            
+                            // 如果没有保存的技能，创建默认的数据库和工具技能分类
+                            if (skillCategories.length === 0) {
+                                skillCategories = [
+                                    {
+                                        name: '数据库技能',
+                                        skills: [
+                                            { name: 'MySQL', level: 90 },
+                                            { name: 'Redis', level: 85 },
+                                            { name: 'Oceanbase', level: 80 }
+                                        ]
+                                    },
+                                    {
+                                        name: '工具技能',
+                                        skills: [
+                                            { name: 'Shell', level: 75 },
+                                            { name: 'Python', level: 70 }
+                                        ]
+                                    }
+                                ];
+                            }
+                            
+                            // 统一处理技能分类和技能项加载
+                            function loadSkillCategory(category) {
+                                if (DOM.addSkillCategoryBtn) {
+                                    const addCategoryEvent = new Event('click');
+                                    DOM.addSkillCategoryBtn.dispatchEvent(addCategoryEvent);
+                                }
+                                
+                                // 获取最后添加的分类
+                                const categories = document.querySelectorAll('.skill-category');
+                                const newCategory = categories[categories.length - 1];
+                                if (newCategory && newCategory.querySelector('.category-name')) {
+                                    newCategory.querySelector('.category-name').value = category.name;
+                                }
+                                
+                                // 添加技能项
+                                if (category.skills && Array.isArray(category.skills)) {
+                                    category.skills.forEach(skill => {
+                                        if (newCategory) {
+                                            const addSkillBtn = newCategory.querySelector('.add-skill');
+                                            if (addSkillBtn) {
+                                                const addSkillEvent = new Event('click');
+                                                addSkillBtn.dispatchEvent(addSkillEvent);
+                                            }
+                                        }
+                                        
+                                        // 获取最后添加的技能项
+                                        if (newCategory) {
+                                            const skills = newCategory.querySelectorAll('.skill-item');
+                                            const newSkill = skills[skills.length - 1];
+                                            if (newSkill) {
+                                                if (newSkill.querySelector('.skill-name')) newSkill.querySelector('.skill-name').value = skill.name;
+                                                if (newSkill.querySelector('.skill-level')) newSkill.querySelector('.skill-level').value = skill.level;
+                                                if (newSkill.querySelector('.skill-level-value')) newSkill.querySelector('.skill-level-value').textContent = `${skill.level}`;
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                            
+                            // 加载所有技能分类
+                            skillCategories.forEach(category => loadSkillCategory(category));
+                        }
+                        
+                        // 清空现有工作经历
+                        const firstExperience = document.querySelector('.experience-item');
+                        if (firstExperience && DOM.experiencesContainer) {
+                            DOM.experiencesContainer.innerHTML = '';
+                            DOM.experiencesContainer.appendChild(firstExperience);
+                        }
+                        
+                        // 加载工作经历
+                        if (data.experiences && data.experiences.length > 0) {
+                            // 如果有保存的工作经历，先移除默认的
+                            if (data.experiences.length > 1 && firstExperience) {
+                                firstExperience.remove();
+                            }
+                            
+                            data.experiences.forEach((exp, index) => {
+                                // 如果是第一个且已存在，则更新
+                                if (index === 0 && document.querySelector('.experience-item')) {
+                                    const item = document.querySelector('.experience-item');
+                                    if (item) {
+                                        if (item.querySelector('.exp-company')) item.querySelector('.exp-company').value = exp.company || '';
+                                        if (item.querySelector('.exp-position')) item.querySelector('.exp-position').value = exp.position || '';
+                                        if (item.querySelector('.exp-start')) item.querySelector('.exp-start').value = exp.startDate || '';
+                                        if (item.querySelector('.exp-end')) item.querySelector('.exp-end').value = exp.endDate || '';
+                                        if (item.querySelector('.exp-location')) item.querySelector('.exp-location').value = exp.location || '';
+                                        if (item.querySelector('.exp-description')) item.querySelector('.exp-description').value = exp.description || '';
+                                        if (item.querySelector('.exp-achievements')) item.querySelector('.exp-achievements').value = exp.achievements || '';
+                                    }
+                                } else {
+                                    // 否则添加新的
+                                    const addEvent = new Event('click');
+                                    if (DOM.addExperienceBtn) {
+                                        DOM.addExperienceBtn.dispatchEvent(addEvent);
+                                    }
+                                    
+                                    // 获取最后一个添加的工作经历并填充数据
+                                    const items = document.querySelectorAll('.experience-item');
+                                    const newItem = items[items.length - 1];
+                                    
+                                    if (newItem) {
+                                        if (newItem.querySelector('.exp-company')) newItem.querySelector('.exp-company').value = exp.company || '';
+                                        if (newItem.querySelector('.exp-position')) newItem.querySelector('.exp-position').value = exp.position || '';
+                                        if (newItem.querySelector('.exp-start')) newItem.querySelector('.exp-start').value = exp.startDate || '';
+                                        if (newItem.querySelector('.exp-end')) newItem.querySelector('.exp-end').value = exp.endDate || '';
+                                        if (newItem.querySelector('.exp-location')) newItem.querySelector('.exp-location').value = exp.location || '';
+                                        if (newItem.querySelector('.exp-description')) newItem.querySelector('.exp-description').value = exp.description || '';
+                                        if (newItem.querySelector('.exp-achievements')) newItem.querySelector('.exp-achievements').value = exp.achievements || '';
+                                    }
+                                }
+                            });
+                        }
+                        
+                        // 更新预览 - 添加检查确保DOM元素存在
+                        if (DOM.previewName) DOM.previewName.textContent = DOM.fullNameInput.value;
+                        if (DOM.previewTitle) DOM.previewTitle.textContent = DOM.jobTitleInput.value;
+                        if (DOM.previewEmail) DOM.previewEmail.textContent = DOM.emailInput.value;
+                        if (DOM.previewPhone) DOM.previewPhone.textContent = DOM.phoneInput.value;
+                        if (DOM.previewLocation) DOM.previewLocation.textContent = DOM.locationInput.value;
+                        if (DOM.previewAvatar) DOM.previewAvatar.src = DOM.avatarUrlInput.value;
+                        if (DOM.previewBio) DOM.previewBio.textContent = DOM.bioInput.value;
+                        if (DOM.previewLinkedin) DOM.previewLinkedin.href = DOM.linkedinInput.value;
+                        if (DOM.previewGithub) DOM.previewGithub.href = DOM.githubInput.value;
+                        if (DOM.previewBlog) DOM.previewBlog.href = DOM.blogInput.value;
+                        
+                        if (ExperienceManager && ExperienceManager.updateExperiencePreviews) {
+                            ExperienceManager.updateExperiencePreviews();
+                        }
+                        
+                        // 确保SkillManager已经初始化，然后更新技能预览
+                        if (SkillManager && SkillManager.updateSkillsPreview) {
+                            SkillManager.updateSkillsPreview();
+                        }
+                        
+                        // 更新项目经验预览
+                        if (ProjectManager && ProjectManager.updateProjectPreviews) {
+                            ProjectManager.updateProjectPreviews();
+                        }
+                        
+                        // 加载项目经验数据
+                        if (data.projects && data.projects.length > 0) {
+                            // 先清空现有项目，保留第一个
+                            const projectsSection = DOM.projectsContainer;
+                            if (projectsSection) {
+                                const existingProjects = projectsSection.querySelectorAll('.project-input-group');
+                                if (existingProjects.length > 0) {
+                                    existingProjects.forEach((project, index) => {
+                                        if (index > 0) project.remove();
+                                    });
+                                }
+                                
+                                // 加载项目数据
+                                data.projects.forEach((projectData, index) => {
+                                    try {
+                                        // 如果是第一个项目，使用已存在的项目输入框
+                                        if (index === 0) {
+                                            const firstProject = projectsSection.querySelector('.project-input-group');
+                                            if (firstProject) {
+                                                if (firstProject.querySelector('.project-title')) firstProject.querySelector('.project-title').value = projectData.name || '';
+                                                if (firstProject.querySelector('.project-company')) firstProject.querySelector('.project-company').value = projectData.company || '';
+                                                if (firstProject.querySelector('.project-period')) firstProject.querySelector('.project-period').value = projectData.period || '';
+                                                if (firstProject.querySelector('.project-description')) firstProject.querySelector('.project-description').value = projectData.description || '';
+                                                if (firstProject.querySelector('.project-technologies')) firstProject.querySelector('.project-technologies').value = projectData.technologies || '';
+                                                if (firstProject.querySelector('.project-achievements')) firstProject.querySelector('.project-achievements').value = projectData.achievements || '';
+                                                
+                                                // 加载核心工作内容
+                                                if (projectData.coreWork && projectData.coreWork.length > 0) {
+                                                    const coreContentContainer = firstProject.querySelector('.core-work-content');
+                                                    if (coreContentContainer) {
+                                                        // 清空现有核心工作内容
+                                                        coreContentContainer.innerHTML = '';
+                                                        
+                                                        projectData.coreWork.forEach((category, catIndex) => {
+                                                            try {
+                                                                // 添加核心工作分类
+                                                                ProjectManager.addCoreCategory(0, true);
+                                                                const addedCategories = firstProject.querySelectorAll('.core-category');
+                                                                const currentCategory = addedCategories[catIndex];
+                                                                if (currentCategory && currentCategory.querySelector('.core-category-name')) {
+                                                                    currentCategory.querySelector('.core-category-name').value = category.category || '';
+                                                                }
+                                                                
+                                                                // 添加核心工作子项
+                                                                if (category.items && category.items.length > 0) {
+                                                                    category.items.forEach((item, itemIndex) => {
+                                                                        try {
+                                                                            if (itemIndex > 0) {
+                                                                                ProjectManager.addCoreItem(0, catIndex, true);
+                                                                            }
+                                                                            const items = currentCategory ? currentCategory.querySelectorAll('.core-item-content') : [];
+                                                                            if (items && items[itemIndex]) {
+                                                                                items[itemIndex].value = item;
+                                                                            }
+                                                                        } catch (e) {
+                                                                            console.error('Error loading core item:', e);
+                                                                        }
+                                                                    });
+                                                                } else {
+                                                                    // 至少添加一个子项
+                                                                    try {
+                                                                        ProjectManager.addCoreItem(0, catIndex, true);
+                                                                    } catch (e) {
+                                                                        console.error('Error adding default core item:', e);
+                                                                    }
+                                                                }
+                                                            } catch (e) {
+                                                                console.error('Error loading core category:', e);
+                                                            }
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            // 添加新的项目输入框
+                                            try {
+                                                ProjectManager.addProject();
+                                                const allProjects = projectsSection.querySelectorAll('.project-input-group');
+                                                const newProject = allProjects[allProjects.length - 1];
+                                                
+                                                if (newProject) {
+                                                    if (newProject.querySelector('.project-title')) newProject.querySelector('.project-title').value = projectData.name || '';
+                                                    if (newProject.querySelector('.project-company')) newProject.querySelector('.project-company').value = projectData.company || '';
+                                                    if (newProject.querySelector('.project-period')) newProject.querySelector('.project-period').value = projectData.period || '';
+                                                    if (newProject.querySelector('.project-description')) newProject.querySelector('.project-description').value = projectData.description || '';
+                                                    if (newProject.querySelector('.project-technologies')) newProject.querySelector('.project-technologies').value = projectData.technologies || '';
+                                                    if (newProject.querySelector('.project-achievements')) newProject.querySelector('.project-achievements').value = projectData.achievements || '';
+                                                    
+                                                    // 加载核心工作内容
+                                                    if (projectData.coreWork && projectData.coreWork.length > 0) {
+                                                        const coreContentContainer = newProject.querySelector('.core-work-content');
+                                                        if (coreContentContainer) {
+                                                            // 清空现有核心工作内容
+                                                            coreContentContainer.innerHTML = '';
+                                                            
+                                                            projectData.coreWork.forEach((category, catIndex) => {
+                                                                try {
+                                                                    // 添加核心工作分类
+                                                                    ProjectManager.addCoreCategory(allProjects.length - 1, true);
+                                                                    const addedCategories = newProject.querySelectorAll('.core-category');
+                                                                    const currentCategory = addedCategories[catIndex];
+                                                                    if (currentCategory && currentCategory.querySelector('.core-category-name')) {
+                                                                        currentCategory.querySelector('.core-category-name').value = category.category || '';
+                                                                    }
+                                                                    
+                                                                    // 添加核心工作子项
+                                                                    if (category.items && category.items.length > 0) {
+                                                                        category.items.forEach((item, itemIndex) => {
+                                                                            try {
+                                                                                if (itemIndex > 0) {
+                                                                                    ProjectManager.addCoreItem(allProjects.length - 1, catIndex, true);
+                                                                                }
+                                                                                const items = currentCategory ? currentCategory.querySelectorAll('.core-item-content') : [];
+                                                                                if (items && items[itemIndex]) {
+                                                                                    items[itemIndex].value = item;
+                                                                                }
+                                                                            } catch (e) {
+                                                                                console.error('Error loading core item:', e);
+                                                                            }
+                                                                        });
+                                                                    } else {
+                                                                        // 至少添加一个子项
+                                                                        try {
+                                                                            ProjectManager.addCoreItem(allProjects.length - 1, catIndex, true);
+                                                                        } catch (e) {
+                                                                            console.error('Error adding default core item:', e);
+                                                                        }
+                                                                    }
+                                                                } catch (e) {
+                                                                    console.error('Error loading core category:', e);
+                                                                }
+                                                            });
+                                                        }
+                                                    }
+                                                }
+                                            } catch (e) {
+                                                console.error('Error adding new project:', e);
+                                            }
+                                        }
+                                    } catch (e) {
+                                        console.error('Error loading project data:', e);
+                                    }
+                                });
+                            }
+                        }
+                        
+                        // 更新教育背景预览
+                        if (EducationManager && EducationManager.updateEducationPreviews) {
+                            EducationManager.updateEducationPreviews();
+                        }
+                    } catch (e) {
+                        console.error('加载保存的数据失败:', e);
+                        Utils.showNotification('加载保存的数据失败', 'error');
+                    }
+                }
+            },
+            
+
+            
+            printResume: function() {
+                try {
+                    // 显示通知
+                    Utils.showNotification('正在准备打印预览...', 'info');
+                    
+                    // 保存当前模式
+                    const isEditMode = !DOM.editorPanel.classList.contains('hidden');
+                    
+                    // 临时切换到完整预览模式以便打印
+                    if (isEditMode) {
+                        ModeManager.switchToPreviewMode();
+                        ModeManager.switchToFullPreview();
+                    }
+                    
+                    // 强制更新所有预览内容
+                    // 基本信息和社交链接
+                    updateBasicInfoPreview();
+                    updateSocialLinksPreview();
+                    
+                    // 确保所有动态内容都被更新
+                    try { if (window.ExperienceManager) ExperienceManager.updateExperiencePreviews(); } catch (e) { console.error('更新工作经历失败:', e); }
+                    try { if (window.ProjectManager) ProjectManager.updateProjectPreviews(); } catch (e) { console.error('更新项目经验失败:', e); }
+                    try { if (window.EducationManager) EducationManager.updateEducationPreviews(); } catch (e) { console.error('更新教育背景失败:', e); }
+                    try { if (window.SkillManager) SkillManager.updateSkillsPreview(); } catch (e) { console.error('更新技能失败:', e); }
+                    
+                    // 短暂延迟确保DOM完全更新
+                    setTimeout(() => {
+                        // 滚动到页面顶部
+                        window.scrollTo({ top: 0, behavior: 'instant' });
+                        
+                        // 执行打印预览
+                        window.print();
+                        
+                        Utils.showNotification('打印预览已启动', 'success');
+                    }, 500);
+                } catch (error) {
+                    console.error('打印预览功能异常:', error);
+                    Utils.showNotification('打印预览功能异常，请重试', 'error');
+                }
+            }
+        };
+        
+        // 技能管理
+        const SkillManager = {
+            init: function() {
+                // 添加技能分类 - 使用bind确保this指向正确
+                DOM.addSkillCategoryBtn.addEventListener('click', this.addSkillCategory.bind(this));
+                
+                // 删除技能分类和技能项的事件委托
+                document.addEventListener('click', this.handleDeleteEvent.bind(this));
+                
+                // 更新技能预览
+                document.addEventListener('input', this.handleSkillInput.bind(this));
+                
+                // 初始化技能预览
+                this.updateSkillsPreview();
+            },
+            
+            addSkillCategory: function() {
+                const categoryId = `category-${Date.now()}`;
+                const newCategory = document.createElement('div');
+                newCategory.className = 'skill-category p-4 border border-gray-200 rounded-lg mb-4 animate-fadeIn';
+                newCategory.setAttribute('data-category-id', categoryId);
+                
+                // 获取当前已有分类数量，决定使用哪种颜色
+                const categories = document.querySelectorAll('.skill-category');
+                const categoryIndex = categories.length;
+                
+                // 定义不同分类的颜色类
+                const categoryColors = [
+                    'purple-600',  // 第一个分类：紫色
+                    'green-600',   // 第二个分类：绿色
+                    'blue-600',    // 第三个分类：蓝色
+                    'amber-500'    // 第四个分类：金色（使用amber作为金色替代）
+                ];
+                
+                // 确定当前分类的颜色
+                const colorClass = categoryColors[categoryIndex % categoryColors.length];
+                
+                newCategory.innerHTML = `
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="relative flex items-center gap-3">
+                            <div class="w-8 h-8 bg-${colorClass} rounded-md flex items-center justify-center text-white">
+                                <i class="fas fa-laptop-code"></i>
+                            </div>
+                            <input type="text" class="category-name w-64 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-${colorClass}/50 focus:border-${colorClass} outline-none" 
+                                placeholder="技能分类名称" value="新技能分类">
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="add-skill bg-${colorClass}/10 text-${colorClass} hover:bg-${colorClass}/20 px-3 py-1.5 rounded-lg transition-colors">
+                                <i class="fas fa-plus mr-1"></i>添加技能
+                            </button>
+                            <button class="delete-category text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition-colors">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="skills-list space-y-4">
+                        <!-- 技能项将在这里动态添加 -->
+                    </div>
+                `;
+                
+                DOM.skillCategoriesContainer.appendChild(newCategory);
+                
+                // 添加默认技能项
+                const addSkillBtn = newCategory.querySelector('.add-skill');
+                const addSkillEvent = new Event('click');
+                addSkillBtn.dispatchEvent(addSkillEvent);
+                
+                // 更新预览 - 确保使用SkillManager对象调用updateSkillsPreview
+                            SkillManager.updateSkillsPreview();
+            },
+            
+            addSkill: function(categoryElement) {
+                const skillId = `skill-${Date.now()}`;
+                const skillsList = categoryElement.querySelector('.skills-list');
+                
+                // 获取分类的颜色类
+                const categoryIconContainer = categoryElement.querySelector('.w-8.h-8.rounded-md');
+                let colorClass = 'primary'; // 默认颜色
+                
+                if (categoryIconContainer) {
+                    // 检查分类图标容器的背景色类
+                    if (categoryIconContainer.classList.contains('bg-purple-600')) {
+                        colorClass = 'purple-600';
+                    } else if (categoryIconContainer.classList.contains('bg-green-600')) {
+                        colorClass = 'green-600';
+                    } else if (categoryIconContainer.classList.contains('bg-blue-600')) {
+                        colorClass = 'blue-600';
+                    } else if (categoryIconContainer.classList.contains('bg-amber-500')) {
+                        colorClass = 'amber-500';
+                    } else if (categoryIconContainer.classList.contains('bg-secondary')) {
+                        colorClass = 'secondary';
+                    } else if (categoryIconContainer.classList.contains('bg-success')) {
+                        colorClass = 'success';
+                    }
+                }
+                
+                const newSkill = document.createElement('div');
+                newSkill.className = 'skill-item flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-gray-50 rounded-lg';
+                newSkill.setAttribute('data-skill-id', skillId);
+                newSkill.innerHTML = `
+                    <div class="flex-1 flex items-center gap-3">
+                        <input type="text" class="skill-name flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-${colorClass}/50 focus:border-${colorClass} outline-none" 
+                            placeholder="技能名称" value="新技能">
+                        <div class="flex items-center gap-3 whitespace-nowrap">
+                            <input type="range" min="1" max="10" value="5" class="skill-level w-40 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-${colorClass}">
+                            <span class="skill-level-value text-sm font-medium min-w-12 text-center">5</span>
+                        </div>
+                    </div>
+                    <button class="delete-skill text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition-colors">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                
+                skillsList.appendChild(newSkill);
+                
+                // 更新预览 - 确保使用SkillManager对象调用updateSkillsPreview
+                            SkillManager.updateSkillsPreview();
+            },
+            
+            handleDeleteEvent: function(e) {
+                // 删除技能分类
+                if (e.target.closest('.delete-category')) {
+                    const categoryElement = e.target.closest('.skill-category');
+                    
+                    // 确保至少保留一个技能分类
+                    const categories = document.querySelectorAll('.skill-category');
+                    if (categories.length > 1) {
+                        categoryElement.classList.add('opacity-0', 'transform', 'translate-y-2');
+                        categoryElement.style.transition = 'all 0.3s ease';
+                        
+                        setTimeout(() => {
+                            categoryElement.remove();
+                            SkillManager.updateSkillsPreview();
+                        }, 300);
+                    } else {
+                        Utils.showNotification('至少需要保留一个技能分类', 'info');
+                    }
+                }
+                
+                // 删除技能项
+                if (e.target.closest('.delete-skill')) {
+                    const skillElement = e.target.closest('.skill-item');
+                    
+                    // 移除技能项，不再限制至少保留一个
+                    skillElement.classList.add('opacity-0');
+                    skillElement.style.transition = 'opacity 0.3s ease';
+                    
+                    setTimeout(() => {
+                        skillElement.remove();
+                        SkillManager.updateSkillsPreview();
+                    }, 300);
+                }
+                
+                // 添加技能项
+                if (e.target.closest('.add-skill')) {
+                    const addSkillBtn = e.target.closest('.add-skill');
+                    const categoryElement = addSkillBtn.closest('.skill-category');
+                    SkillManager.addSkill(categoryElement);
+                }
+            },
+            
+            handleSkillInput: function(e) {
+                // 更新技能等级显示
+                if (e.target.classList.contains('skill-level')) {
+                    const skillLevel = e.target;
+                    const skillLevelValue = skillLevel.nextElementSibling;
+                    skillLevelValue.textContent = `${skillLevel.value}`;
+                    SkillManager.updateSkillsPreview();
+                }
+                
+                // 更新分类名称或技能名称
+                if (e.target.classList.contains('category-name') || e.target.classList.contains('skill-name')) {
+                    SkillManager.updateSkillsPreview();
+                }
+            },
+            
+            updateSkillsPreview: function() {
+                // 查找专业技能部分的容器
+                const skillsSection = document.querySelector('section.py-30.bg-light');
+                if (!skillsSection) return;
+                
+                // 找到包含技能卡片的grid容器
+                const skillsGrid = skillsSection.querySelector('.grid.grid-cols-1.md\\:grid-cols-2');
+                if (!skillsGrid) return;
+                
+                // 清空现有的技能卡片
+                skillsGrid.innerHTML = '';
+                
+                // 定义不同分类的颜色类
+                const categoryColors = [
+                    'bg-purple-600',  // 第一个分类：紫色
+                    'bg-green-600',   // 第二个分类：绿色
+                    'bg-blue-600',    // 第三个分类：蓝色
+                    'bg-amber-500'    // 第四个分类：金色（使用amber作为金色替代）
+                ];
+                
+                // 定义不同分类的图标
+                const categoryIcons = [
+                    'fa-database',
+                    'fa-tools',
+                    'fa-laptop-code',
+                    'fa-medal'
+                ];
+                
+                const categories = document.querySelectorAll('.skill-category');
+                categories.forEach((category, categoryIndex) => {
+                    const categoryNameElement = category.querySelector('.category-name');
+                    if (!categoryNameElement || !categoryNameElement.value.trim()) return;
+                    const categoryName = categoryNameElement.value;
+                    
+                    const categorySkills = category.querySelectorAll('.skill-item');
+                    if (categorySkills.length === 0) return;
+                    
+                    // 获取当前分类的颜色类（如果超出定义的颜色数量，循环使用）
+                    const colorClass = categoryColors[categoryIndex % categoryColors.length];
+                    const iconClass = categoryIcons[categoryIndex % categoryIcons.length];
+                    
+                    // 创建技能卡片
+                    const skillCard = document.createElement('div');
+                    skillCard.className = 'bg-white rounded-2xl p-10 shadow-sm animate-fadeIn animate-delay-' + ((categoryIndex + 1) * 100);
+                    
+                    // 卡片头部
+                    const cardHeader = document.createElement('div');
+                    cardHeader.className = 'flex items-center gap-4 mb-8';
+                    
+                    // 图标容器
+                    const iconContainer = document.createElement('div');
+                    iconContainer.className = 'w-14 h-14 ' + colorClass + ' rounded-xl flex items-center justify-center text-white';
+                    iconContainer.innerHTML = '<i class="fas ' + iconClass + ' text-2xl"></i>';
+                    cardHeader.appendChild(iconContainer);
+                    
+                    // 分类标题
+                    const cardTitle = document.createElement('h3');
+                    cardTitle.className = 'text-1.5xl font-semibold text-dark m-0';
+                    cardTitle.textContent = categoryName;
+                    cardHeader.appendChild(cardTitle);
+                    
+                    // 添加卡片头部到卡片
+                    skillCard.appendChild(cardHeader);
+                    
+                    // 技能列表容器
+                    const skillsList = document.createElement('div');
+                    skillsList.className = 'flex flex-col gap-5';
+                    
+                    // 添加技能项
+                    categorySkills.forEach((skill) => {
+                        const skillNameElement = skill.querySelector('.skill-name');
+                        const skillLevelElement = skill.querySelector('.skill-level');
+                        
+                        if (!skillNameElement || !skillLevelElement) return;
+                        
+                        const skillName = skillNameElement.value;
+                        const skillLevel = skillLevelElement.value;
+                        
+                        if (!skillName.trim()) return;
+                        
+                        // 技能项容器
+                        const skillItem = document.createElement('div');
+                        skillItem.innerHTML = `
+                            <div class="flex justify-between mb-2.5">
+                                <span class="text-gray-800 font-medium">${skillName}</span>
+                                <span class="text-gray-500 text-sm">${skillLevel}</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="skill-bar h-2.5 ${colorClass} rounded-full" style="width: ${skillLevel * 10}%"></div>
+                            </div>
+                        `;
+                        
+                        skillsList.appendChild(skillItem);
+                    });
+                    
+                    // 添加技能列表到卡片
+                    skillCard.appendChild(skillsList);
+                    
+                    // 添加卡片到grid容器
+                    skillsGrid.appendChild(skillCard);
+                });
+            }
+        };
+        
+        // 工作经历管理
+        const ExperienceManager = {
+            init: function() {
+                // 添加工作经历
+                DOM.addExperienceBtn.addEventListener('click', this.addExperience);
+                
+                // 删除工作经历事件委托
+                document.addEventListener('click', this.handleDeleteExperience);
+                
+                // 为所有工作经历输入框添加事件监听
+                this.addEventListenersToExperienceInputs();
+            },
+            
+            addExperience: function() {
+                const newExperience = document.createElement('div');
+                newExperience.className = 'experience-item p-4 border border-gray-200 rounded-lg animate-fadeIn';
+                newExperience.innerHTML = `
+                    <div class="flex justify-end mb-2">
+                        <button class="delete-experience text-red-500 hover:text-red-700">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">公司名称</label>
+                            <input type="text" class="exp-company editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="输入公司名称">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">职位</label>
+                            <input type="text" class="exp-position editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="输入职位名称">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">开始日期</label>
+                            <input type="text" class="exp-start editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="例如：2020年01月">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">结束日期</label>
+                            <input type="text" class="exp-end editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="例如：2023年01月或至今">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">工作地点</label>
+                            <input type="text" class="exp-location editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="输入工作地点">
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">工作描述</label>
+                        <textarea class="exp-description editor-textarea w-full px-3 py-2 border border-gray-300 rounded-lg h-16" rows="3" placeholder="描述您的主要工作内容"></textarea>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">主要成就 (每行一项)</label>
+                        <textarea class="exp-achievements editor-textarea w-full px-3 py-2 border border-gray-300 rounded-lg h-24" rows="4" placeholder="列出您的主要成就，每行一项"></textarea>
+                    </div>
+                `;
+                
+                DOM.experiencesContainer.appendChild(newExperience);
+                
+                // 为新添加的输入框添加事件监听
+                const inputs = newExperience.querySelectorAll('input, textarea');
+                inputs.forEach(input => {
+                    input.addEventListener('input', ExperienceManager.updateExperiencePreviews);
+                });
+                
+                // 更新预览
+                ExperienceManager.updateExperiencePreviews();
+            },
+            
+            handleDeleteExperience: function(e) {
+                if (e.target.closest('.delete-experience')) {
+                    const experienceItem = e.target.closest('.experience-item');
+                    
+                    // 确保至少保留一个工作经历
+                    if (document.querySelectorAll('.experience-item').length > 1) {
+                        experienceItem.classList.add('opacity-0', 'transform', 'translate-x-4');
+                        experienceItem.style.transition = 'all 0.3s ease';
+                        
+                        setTimeout(() => {
+                            experienceItem.remove();
+                            ExperienceManager.updateExperiencePreviews();
+                        }, 300);
+                    } else {
+                        Utils.showNotification('至少需要保留一个工作经历', 'info');
+                    }
+                }
+            },
+            
+            addEventListenersToExperienceInputs: function() {
+                const inputs = document.querySelectorAll('.experience-item input, .experience-item textarea');
+                inputs.forEach(input => {
+                    input.addEventListener('input', this.updateExperiencePreviews);
+                });
+            },
+            
+            updateExperiencePreviews: function() {
+                const experiences = document.querySelectorAll('.experience-item');
+                const previewContainer = DOM.previewExperiences;
+                
+                // 清空预览容器
+                previewContainer.innerHTML = '<div class="absolute left-5 top-0 bottom-0 w-0.5 bg-gray-200"></div>';
+                
+                // 扩大预览容器宽度
+                previewContainer.className = 'relative w-[100%] mx-auto px-5';
+                
+                // 创建预览内容
+                const previewContent = document.createElement('div');
+                previewContent.className = 'flex flex-col gap-12';
+                
+                // 扩大预览容器宽度
+                previewContainer.className = 'relative w-[100%] mx-auto px-5';
+                
+                experiences.forEach((exp, index) => {
+                    // 安全获取输入值，避免空引用错误
+                    const company = exp.querySelector('.exp-company')?.value || '';
+                    const position = exp.querySelector('.exp-position')?.value || '';
+                    const startDate = exp.querySelector('.exp-start')?.value || '';
+                    const endDate = exp.querySelector('.exp-end')?.value || '';
+                    const location = exp.querySelector('.exp-location')?.value || '';
+                    const description = exp.querySelector('.exp-description')?.value || '';
+                    const achievements = exp.querySelector('.exp-achievements')?.value || '';
+                    
+                    // 跳过空的工作经历
+                    if (!company && !position && !description) return;
+                    
+                    const experiencePreview = document.createElement('div');
+                    experiencePreview.className = `experience-preview relative pl-25 animate-fadeIn animate-delay-${(index + 1) * 100}`;
+                    
+                    const achievementsList = achievements.split('\n')
+                        .filter(line => line.trim())
+                        .map((achievement, i) => `
+                            <li class="flex items-start gap-4 ${i < achievements.split('\n').filter(line => line.trim()).length - 1 ? 'mb-3' : ''}">
+                                <span class="text-primary font-bold">→</span>
+                                <span class="text-gray-700">${achievement.trim()}</span>
+                            </li>`)
+                        .join('');
+                    
+                    experiencePreview.innerHTML = `
+                        <div class="experience-card bg-light rounded-2xl p-8 shadow-sm transition-all duration-300">
+                            <div class="flex flex-col gap-7">
+                                <div class="flex flex-col md:flex-row justify-between items-start gap-5">
+                                    <div>
+                                        <h3 class="text-1.5xl font-semibold text-dark mb-2">
+                                            ${position || '职位'}
+                                        </h3>
+                                        <p class="text-lg text-primary font-medium m-0">
+                                            ${company || '公司名称'}
+                                        </p>
+                                    </div>
+                                    <div class="text-gray-500 m-0 flex flex-col items-start gap-1">
+                                        <span class="flex items-center gap-1"><i class="far fa-calendar text-sm text-gray-600"></i> ${startDate || '开始日期'} - ${endDate || '结束日期'}</span>
+                                        <span class="flex items-center gap-1">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M12 2C8.13401 2 5 5.13401 5 9C5 10.6569 5.57868 12.2104 6.5 13.5L12 21L17.5 13.5C18.4213 12.2104 18.9999 10.6569 18.9999 9C18.9999 5.13401 15.866 2 12 2Z" stroke="#4b5563" stroke-width="1.5"/>
+                                                <circle cx="12" cy="8" r="2" stroke="#4b5563" stroke-width="1.5"/>
+                                            </svg>
+                                            <span class="text-sm text-gray-600">${location || '工作地点'}</span>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <p class="text-gray-700 leading-relaxed m-0">
+                                    ${description || '工作描述'}
+                                </p>
+
+                                ${achievementsList ? `
+                                <div>
+                                    <h4 class="text-lg font-medium text-dark mb-3">主要成就</h4>
+                                    <ul class="m-0 p-0 list-none">
+                                        ${achievementsList}
+                                    </ul>
+                                </div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                    
+                    previewContent.appendChild(experiencePreview);
+                });
+                
+                previewContainer.appendChild(previewContent);
+            }
+        };
+        
+        // 项目经验管理
+        const ProjectManager = {
+            init: function() {
+                // 添加项目经验
+                DOM.addProjectBtn.addEventListener('click', this.addProject);
+                
+                // 删除项目经验事件委托
+                document.addEventListener('click', this.handleDeleteProject);
+                
+                // 为所有项目经验输入框添加事件监听
+                this.addEventListenersToProjectInputs();
+                
+                // 为所有现有项目的核心工作内容按钮添加事件监听
+                this.addEventListenersToCoreWorkButtons();
+            },
+            
+            // 为所有项目的核心工作内容按钮添加事件监听
+            addEventListenersToCoreWorkButtons: function() {
+                const projects = document.querySelectorAll('.project-item');
+                projects.forEach(project => {
+                    // 为添加核心工作分类按钮添加事件监听
+                    const addCoreCategoryBtn = project.querySelector('.add-core-category');
+                    if (addCoreCategoryBtn) {
+                        addCoreCategoryBtn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            const projectItem = this.closest('.project-item');
+                            ProjectManager.addCoreCategory(projectItem);
+                        });
+                    }
+                    
+                    // 为所有添加核心工作内容项按钮添加事件监听
+                    const addCoreItemBtns = project.querySelectorAll('.add-core-item');
+                    addCoreItemBtns.forEach(btn => {
+                        btn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            const category = this.closest('.core-category');
+                            ProjectManager.addCoreItem(category);
+                        });
+                    });
+                    
+                    // 为所有删除核心工作分类按钮添加事件监听
+                    const deleteCoreCategoryBtns = project.querySelectorAll('.delete-core-category');
+                    deleteCoreCategoryBtns.forEach(btn => {
+                        btn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            const category = this.closest('.core-category');
+                            ProjectManager.removeCoreCategory(category);
+                        });
+                    });
+                    
+                    // 为所有删除核心工作内容项按钮添加事件监听
+                    const deleteCoreItemBtns = project.querySelectorAll('.delete-core-item');
+                    deleteCoreItemBtns.forEach(btn => {
+                        btn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            const item = this.closest('.core-item');
+                            ProjectManager.removeCoreItem(item);
+                        });
+                    });
+                });
+            },
+            
+            addProject: function() {
+                const newProject = document.createElement('div');
+                newProject.className = 'project-item p-4 border border-gray-200 rounded-lg animate-fadeIn';
+                newProject.innerHTML = `
+                    <div class="flex justify-end mb-2">
+                        <button class="delete-project text-red-500 hover:text-red-700">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">项目名称</label>
+                            <input type="text" class="project-title editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="输入项目名称">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">所属公司/组织</label>
+                            <input type="text" class="project-company editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="输入公司/组织名称">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">开始日期</label>
+                            <input type="text" class="project-start editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="例如：2020年01月">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">结束日期</label>
+                            <input type="text" class="project-end editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="例如：2023年01月或至今">
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">项目描述</label>
+                        <textarea class="project-description editor-textarea w-full px-3 py-2 border border-gray-300 rounded-lg h-24" rows="4" placeholder="描述项目的主要内容和目标"></textarea>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">技术栈 (英文逗号分隔)</label>
+                        <input type="text" class="project-technologies editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="例如：React, Node.js, MongoDB">
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">项目成果/成就 (每行一项)</label>
+                        <textarea class="project-achievements editor-textarea w-full px-3 py-2 border border-gray-300 rounded-lg h-24" rows="4" placeholder="列出项目的主要成果和成就，每行一项"></textarea>
+                    </div>
+                    
+                    <!-- 核心工作内容部分 -->
+                    <div class="mt-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="block text-sm font-medium text-gray-700">核心工作内容</label>
+                            <button class="add-core-category text-primary hover:text-primary/80 text-sm flex items-center">
+                                <i class="fas fa-plus mr-1"></i> 添加分类
+                            </button>
+                        </div>
+                        <div class="core-work-content space-y-3">
+                            <!-- 核心工作分类将在这里动态添加 -->
+                        </div>
+                    </div>
+                `;
+                
+                DOM.projectsContainer.appendChild(newProject);
+                
+                // 为新添加的输入框添加事件监听
+                    const inputs = newProject.querySelectorAll('input, textarea');
+                    inputs.forEach(input => {
+                        input.addEventListener('input', ProjectManager.updateProjectPreviews);
+                    });
+                    
+                    // 为新项目的核心工作内容按钮添加事件监听
+                    ProjectManager.addEventListenersToCoreWorkButtons();
+                    
+                    // 更新预览
+                    ProjectManager.updateProjectPreviews();
+            },
+            
+            // 添加核心工作分类
+            addCoreCategory: function(projectItem) {
+                const coreWorkContent = projectItem.querySelector('.core-work-content');
+                const categoryIndex = coreWorkContent.querySelectorAll('.core-category').length;
+                
+                const newCategory = document.createElement('div');
+                newCategory.className = 'core-category p-3 border border-gray-200 rounded-lg';
+                newCategory.innerHTML = `
+                    <div class="flex justify-between items-center mb-3">
+                        <input type="text" class="core-category-name w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="分类名称（如：需求分析、系统设计等）">
+                        <button class="delete-core-category ml-2 text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition-colors">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm text-gray-600">工作内容：</span>
+                        <button class="add-core-item bg-green-100 text-green-700 hover:bg-green-200 px-3 py-1 rounded-lg text-sm transition-colors">
+                            <i class="fas fa-plus mr-1"></i>添加内容
+                        </button>
+                    </div>
+                    <div class="core-items space-y-2">
+                        <!-- 核心工作内容项将在这里动态添加 -->
+                    </div>
+                `;
+                
+                coreWorkContent.appendChild(newCategory);
+                
+                // 添加默认的核心工作内容项
+                const addCoreItemBtn = newCategory.querySelector('.add-core-item');
+                if (addCoreItemBtn) {
+                    addCoreItemBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const category = this.closest('.core-category');
+                        ProjectManager.addCoreItem(category);
+                    });
+                }
+                
+                // 为删除核心工作分类按钮添加事件监听
+                const deleteCoreCategoryBtn = newCategory.querySelector('.delete-core-category');
+                if (deleteCoreCategoryBtn) {
+                    deleteCoreCategoryBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const category = this.closest('.core-category');
+                        ProjectManager.removeCoreCategory(category);
+                    });
+                }
+                
+                // 为分类名称输入框添加事件监听
+                const categoryNameInput = newCategory.querySelector('.core-category-name');
+                if (categoryNameInput) {
+                    categoryNameInput.addEventListener('input', ProjectManager.updateProjectPreviews);
+                }
+                
+                // 添加一个默认的工作内容项
+                ProjectManager.addCoreItem(newCategory);
+                
+                // 更新预览
+                ProjectManager.updateProjectPreviews();
+            },
+            
+            // 添加核心工作内容项
+            addCoreItem: function(category) {
+                const coreItems = category.querySelector('.core-items');
+                const itemIndex = coreItems.querySelectorAll('.core-item').length;
+                
+                const newItem = document.createElement('div');
+                newItem.className = 'core-item flex items-center gap-2';
+                newItem.innerHTML = `
+                    <input type="text" class="core-item-content flex-grow px-3 py-1.5 border border-gray-300 rounded-lg text-sm" placeholder="输入具体工作内容">
+                    <button class="delete-core-item text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition-colors">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                `;
+                
+                coreItems.appendChild(newItem);
+                
+                // 为删除核心工作内容项按钮添加事件监听
+                const deleteCoreItemBtn = newItem.querySelector('.delete-core-item');
+                if (deleteCoreItemBtn) {
+                    deleteCoreItemBtn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const item = this.closest('.core-item');
+                        ProjectManager.removeCoreItem(item);
+                    });
+                }
+                
+                // 为核心工作内容项输入框添加事件监听
+                const itemContentInput = newItem.querySelector('.core-item-content');
+                if (itemContentInput) {
+                    itemContentInput.addEventListener('input', ProjectManager.updateProjectPreviews);
+                }
+                
+                // 更新预览
+                ProjectManager.updateProjectPreviews();
+            },
+            
+            // 删除核心工作分类
+            removeCoreCategory: function(category) {
+                category.classList.add('opacity-0');
+                category.style.transition = 'opacity 0.3s ease';
+                
+                setTimeout(() => {
+                    category.remove();
+                    ProjectManager.updateProjectPreviews();
+                }, 300);
+            },
+            
+            // 删除核心工作内容项
+            removeCoreItem: function(item) {
+                item.classList.add('opacity-0');
+                item.style.transition = 'opacity 0.3s ease';
+                
+                setTimeout(() => {
+                    item.remove();
+                    ProjectManager.updateProjectPreviews();
+                }, 300);
+            },
+            
+            handleDeleteProject: function(e) {
+                if (e.target.closest('.delete-project')) {
+                    const projectItem = e.target.closest('.project-item');
+                    
+                    // 确保至少保留一个项目经验
+                    if (document.querySelectorAll('.project-item').length > 1) {
+                        projectItem.classList.add('opacity-0', 'transform', 'translate-x-4');
+                        projectItem.style.transition = 'all 0.3s ease';
+                        
+                        setTimeout(() => {
+                            projectItem.remove();
+                            ProjectManager.updateProjectPreviews();
+                        }, 300);
+                    } else {
+                        Utils.showNotification('至少需要保留一个项目经验', 'info');
+                    }
+                }
+            },
+            
+            addEventListenersToProjectInputs: function() {
+                const inputs = document.querySelectorAll('.project-item input, .project-item textarea');
+                inputs.forEach(input => {
+                    input.addEventListener('input', ProjectManager.updateProjectPreviews);
+                });
+            },
+            
+            updateProjectPreviews: function() {
+                const projects = document.querySelectorAll('.project-item');
+                const previewContainer = DOM.previewProjects;
+                
+                // 清空预览容器
+                previewContainer.innerHTML = '<div class="absolute left-5 top-0 bottom-0 w-0.5 bg-gray-200"></div>';
+                
+                // 创建预览内容
+                const previewContent = document.createElement('div');
+                previewContent.className = 'flex flex-col gap-12';
+                
+                projects.forEach((proj, index) => {
+                    // 安全获取输入值，避免空引用错误
+                    const name = proj.querySelector('.project-title')?.value || '';
+                    const company = proj.querySelector('.project-company')?.value || '';
+                    const period = proj.querySelector('.project-period')?.value || '';
+                    const description = proj.querySelector('.project-description')?.value || '';
+                    const techStack = proj.querySelector('.project-technologies')?.value || '';
+                    const achievements = proj.querySelector('.project-achievements')?.value || '';
+                    
+                    // 提取核心工作内容数据
+                    const coreCategories = proj.querySelectorAll('.core-category');
+                    let coreWorkHtml = '';
+                    
+                    if (coreCategories.length > 0) {
+                        let hasValidContent = false;
+                        let categoriesHtml = '';
+                        
+                        coreCategories.forEach((category, catIndex) => {
+                            const categoryName = category.querySelector('.core-category-name')?.value || '';
+                            const coreItems = category.querySelectorAll('.core-item');
+                            let itemsHtml = '';
+                            
+                            coreItems.forEach((item, itemIndex) => {
+                                const itemContent = item.querySelector('.core-item-content')?.value || '';
+                                if (itemContent.trim()) {
+                                    hasValidContent = true;
+                                    itemsHtml += `
+                                        <li class="flex items-start gap-3 ${itemIndex < coreItems.length - 1 ? 'mb-2' : ''}">
+                                            <span class="text-primary font-bold">•</span>
+                                            <span class="text-gray-700">${itemContent.trim()}</span>
+                                        </li>`;
+                                }
+                            });
+                            
+                            if (categoryName.trim() && itemsHtml) {
+                                categoriesHtml += `
+                                    <div class="mb-4 ${catIndex < coreCategories.length - 1 ? 'mb-6' : ''}">
+                                        <h5 class="font-medium text-gray-800 mb-2">${categoryName.trim()}</h5>
+                                        <ul class="m-0 p-0 list-none pl-1">
+                                            ${itemsHtml}
+                                        </ul>
+                                    </div>`;
+                            }
+                        });
+                        
+                        if (hasValidContent) {
+                            coreWorkHtml = `
+                                <div>
+                                    <h4 class="text-lg font-medium text-dark mb-4">核心工作内容</h4>
+                                    <div class="space-y-4">
+                                        ${categoriesHtml}
+                                    </div>
+                                </div>`;
+                        }
+                    }
+                    
+                    // 跳过空的项目经验
+                    if (!name && !description && !coreWorkHtml) return;
+                    
+                    const projectPreview = document.createElement('div');
+                    projectPreview.className = `project-preview relative pl-25 animate-fadeIn animate-delay-${(index + 1) * 100}`;
+                    
+                    const achievementsList = achievements.split('\n')
+                        .filter(line => line.trim())
+                        .map((achievement, i) => `
+                            <li class="flex items-start gap-4 ${i < achievements.split('\n').filter(line => line.trim()).length - 1 ? 'mb-3' : ''}">
+                                <span class="text-primary font-bold">→</span>
+                                <span class="text-gray-700">${achievement.trim()}</span>
+                            </li>`)
+                        .join('');
+                    
+                    // 格式化技术栈
+                    const techStackItems = techStack.split(',')
+                        .filter(tech => tech.trim())
+                        .map(tech => `<span class="inline-block bg-primary/10 text-primary px-3 py-1 rounded-full text-sm mr-2 mb-2">${tech.trim()}</span>`)
+                        .join('');
+                    
+                    projectPreview.innerHTML = `
+                        <div class="project-card bg-light rounded-2xl p-8 shadow-sm transition-all duration-300 max-w-none">
+                            <div class="flex flex-col gap-7">
+                                <div class="flex flex-col md:flex-row justify-between items-start gap-5">
+                                    <div>
+                                        <h3 class="text-1.5xl font-semibold text-dark mb-2">
+                                            ${name || '项目名称'}
+                                        </h3>
+                                        ${company ? `<p class="text-lg text-primary font-medium m-0">${company}</p>` : ''}
+                                        ${techStackItems ? `<div class="flex flex-wrap mt-2">${techStackItems}</div>` : ''}
+                                    </div>
+                                    <div class="text-gray-500 m-0 flex items-center gap-1">
+                                        <i class="far fa-calendar text-sm text-gray-600"></i> ${period || '项目周期'}
+                                    </div>
+                                </div>
+
+                                ${description ? `
+                                <div class="project-description-section">
+                                    <h4 class="text-lg font-medium text-dark mb-3">项目描述</h4>
+                                    <p class="text-gray-700 leading-relaxed m-0">
+                                        ${description}
+                                    </p>
+                                </div>` : ''}
+                                
+                                ${coreWorkHtml}
+                                
+                                ${achievementsList ? `
+                                <div>
+                                    <h4 class="text-lg font-medium text-dark mb-3">项目成果</h4>
+                                    <ul class="m-0 p-0 list-none">
+                                        ${achievementsList}
+                                    </ul>
+                                </div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                    
+                    previewContent.appendChild(projectPreview);
+                });
+                
+                previewContainer.appendChild(previewContent);
+            }
+        };
+        
+        // 教育背景管理
+        const EducationManager = {
+            init: function() {
+                // 添加教育背景
+                DOM.addEducationBtn.addEventListener('click', this.addEducation);
+                
+                // 删除教育背景事件委托
+                document.addEventListener('click', this.handleDeleteEducation);
+                
+                // 为所有教育背景输入框添加事件监听
+                this.addEventListenersToEducationInputs();
+            },
+            
+            addEducation: function() {
+                const newEducation = document.createElement('div');
+                newEducation.className = 'education-item p-4 border border-gray-200 rounded-lg animate-fadeIn';
+                newEducation.innerHTML = `
+                    <div class="flex justify-end mb-2">
+                        <button class="delete-education text-red-500 hover:text-red-700">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">学校名称</label>
+                            <input type="text" class="education-school editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="输入学校名称">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">学历/专业</label>
+                            <input type="text" class="education-degree editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="例如：计算机科学 本科">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">在校期间</label>
+                            <input type="text" class="education-period editor-input w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="例如：2016年9月-2020年6月">
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">教育描述</label>
+                        <textarea class="education-description editor-textarea w-full px-3 py-2 border border-gray-300 rounded-lg h-24" rows="4" placeholder="描述您的学习经历、成绩或校园活动等"></textarea>
+                    </div>
+                `;
+                
+                DOM.educationContainer.appendChild(newEducation);
+                
+                // 为新添加的输入框添加事件监听
+                const inputs = newEducation.querySelectorAll('input, textarea');
+                inputs.forEach(input => {
+                    input.addEventListener('input', EducationManager.updateEducationPreviews);
+                });
+                
+                // 更新预览
+                EducationManager.updateEducationPreviews();
+            },
+            
+            handleDeleteEducation: function(e) {
+                if (e.target.closest('.delete-education')) {
+                    const educationItem = e.target.closest('.education-item');
+                    
+                    // 确保至少保留一个教育背景
+                    if (document.querySelectorAll('.education-item').length > 1) {
+                        educationItem.classList.add('opacity-0', 'transform', 'translate-x-4');
+                        educationItem.style.transition = 'all 0.3s ease';
+                        
+                        setTimeout(() => {
+                            educationItem.remove();
+                            EducationManager.updateEducationPreviews();
+                        }, 300);
+                    } else {
+                        Utils.showNotification('至少需要保留一个教育背景', 'info');
+                    }
+                }
+            },
+            
+            addEventListenersToEducationInputs: function() {
+                const inputs = document.querySelectorAll('.education-item input, .education-item textarea');
+                inputs.forEach(input => {
+                    input.addEventListener('input', EducationManager.updateEducationPreviews);
+                });
+            },
+            
+            updateEducationPreviews: function() {
+                const education = document.querySelectorAll('.education-item');
+                const previewContainer = DOM.previewEducation;
+                
+                // 清空预览容器
+                previewContainer.innerHTML = '<div class="absolute left-5 top-0 bottom-0 w-0.5 bg-gray-200"></div>';
+                
+                // 创建预览内容
+                const previewContent = document.createElement('div');
+                previewContent.className = 'flex flex-col gap-12';
+                
+                education.forEach((edu, index) => {
+                    // 安全获取输入值，避免空引用错误
+                    const school = edu.querySelector('.education-school')?.value || '';
+                    const degree = edu.querySelector('.education-degree')?.value || '';
+                    const period = edu.querySelector('.education-period')?.value || '';
+                    const description = edu.querySelector('.education-description')?.value || '';
+                    
+                    // 跳过空的教育背景
+                    if (!school) return;
+                    
+                    const educationPreview = document.createElement('div');
+                    educationPreview.className = `education-preview relative pl-25 animate-fadeIn animate-delay-${(index + 1) * 100}`;
+                    
+                    educationPreview.innerHTML = `
+                        <!-- 学校名称和时间显示在同一行，与卡片宽度保持一致，减小间距并进一步下移位置 -->
+                        <div class="flex justify-between items-center mb-2 px-8 pt-4">
+                            <p class="text-lg text-primary font-medium m-0">
+                                ${school || '学校名称'}
+                            </p>
+                            <div class="text-gray-500 m-0 flex items-center gap-1">
+                                <i class="far fa-calendar text-sm text-gray-600"></i> ${period || '就读期间'}
+                            </div>
+                        </div>
+                        <!-- 学历/专业显示在学校名称下方 -->
+                        ${degree ? `<div class="mb-4 px-8"><h3 class="text-1.5xl font-semibold text-dark m-0">${degree}</h3></div>` : ''}
+                        <!-- 教育描述显示在学历/专业的下一行的下一行 -->
+                        ${description ? `<div class="mb-6 px-8"><p class="text-gray-700 leading-relaxed m-0">${description}</p></div>` : ''}
+                    `;
+                    
+                    previewContent.appendChild(educationPreview);
+                });
+                
+                previewContainer.appendChild(previewContent);
+            }
+        };
+        
+        // 初始化应用
+        function initApp() {
+            // 初始化模式管理
+            ModeManager.init();
+            
+            // 初始化数据管理
+            DataManager.init();
+            
+            // 初始化工作经历管理
+            ExperienceManager.init();
+            
+            // 初始化项目经验管理
+            ProjectManager.init();
+            
+            // 初始化教育背景管理
+            EducationManager.init();
+            
+            // 初始化基本信息实时预览更新
+            initBasicInfoPreview();
+            
+            // 初始化社交链接实时预览更新
+            initSocialLinksPreview();
+            
+            // 初始化动画效果
+            initAnimations();
+        }
+        
+        // 更新基本信息预览
+        function updateBasicInfoPreview() {
+            DOM.previewName.textContent = DOM.fullNameInput.value || '您的姓名';
+            DOM.previewTitle.textContent = DOM.jobTitleInput.value || '您的职位';
+            DOM.previewEmail.textContent = DOM.emailInput.value || '您的邮箱';
+            DOM.previewPhone.textContent = DOM.phoneInput.value || '您的电话';
+            DOM.previewLocation.textContent = DOM.locationInput.value || '您的所在地';
+            DOM.previewAvatar.src = DOM.avatarUrlInput.value || 'https://via.placeholder.com/200';
+            DOM.previewBio.textContent = DOM.bioInput.value || '您的个人简介';
+        }
+        
+        // 初始化基本信息实时预览更新
+        function initBasicInfoPreview() {
+            const basicInfoInputs = [
+                DOM.fullNameInput,
+                DOM.jobTitleInput,
+                DOM.emailInput,
+                DOM.phoneInput,
+                DOM.locationInput,
+                DOM.avatarUrlInput,
+                DOM.bioInput
+            ];
+            
+            basicInfoInputs.forEach(input => {
+                input.addEventListener('input', updateBasicInfoPreview);
+            });
+        }
+        
+        // 更新社交链接预览
+        function updateSocialLinksPreview() {
+            DOM.previewLinkedin.href = DOM.linkedinInput.value || '#';
+            DOM.previewGithub.href = DOM.githubInput.value || '#';
+            DOM.previewBlog.href = DOM.blogInput.value || '#';
+        }
+        
+        // 初始化社交链接实时预览更新
+        function initSocialLinksPreview() {
+            const socialInputs = [
+                DOM.linkedinInput,
+                DOM.githubInput,
+                DOM.blogInput
+            ];
+            
+            socialInputs.forEach(input => {
+                input.addEventListener('input', updateSocialLinksPreview);
+            });
+        }
+        
+        // 初始化技能实时预览更新函数已被移除，功能已整合到SkillManager中
+        
+        // 初始化动画效果
+        function initAnimations() {
+            // 社交链接动画
+            const socialIcons = document.querySelectorAll('.social-icon');
+            socialIcons.forEach(icon => {
+                icon.classList.add('w-12', 'h-12', 'rounded-full', 'bg-light', 'text-primary', 'flex', 'items-center', 'justify-center', 'text-xl', 'shadow-md', 'hover:bg-primary', 'hover:text-white', 'transition-all-300');
+            });
+            
+            // 滚动动画
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('opacity-100', 'transform-none');
+                        entry.target.classList.remove('opacity-0', 'translate-y-10');
+                    }
+                });
+            }, observerOptions);
+            
+            // 为部分元素添加滚动动画
+            const animatedElements = document.querySelectorAll('.experience-card');
+            animatedElements.forEach(element => {
+                element.classList.add('opacity-0', 'translate-y-10', 'transition-all', 'duration-700');
+                observer.observe(element);
+            });
+        }
+        
+        // 启动应用
+        document.addEventListener('DOMContentLoaded', function() {
+            initApp();
+            // 确保SkillManager被初始化
+            if (typeof SkillManager !== 'undefined' && typeof SkillManager.init === 'function') {
+                SkillManager.init();
+            }
+        });
+    </script>
+
+<script>
+  // 用于初始化页面数据的脚本
+  document.addEventListener('DOMContentLoaded', function() {
+    try {
+      // 整合 db.json 的数据
+      const dbJsonData = {
+        "personalInfo": {
+          "name": "Jerry",
+          "title": "AI工程师",
+          "email": "9527@qq.com",
+          "phone": "18888888888",
+          "location": "上海",
+          "website": "https://example.com",
+          "socialLinks": [
+            {
+              "platform": "linkedin",
+              "url": "https://linkedin.com/in/jerry",
+              "icon": "linkedin"
+            },
+            {
+              "platform": "github",
+              "url": "https://github.com/jerry",
+              "icon": "github"
+            },
+            {
+              "platform": "blog",
+              "url": "https://blog.jerry.com",
+              "icon": "blog"
+            }
+          ],
+          "avatarUrl": "https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEBp8powZ_5AnbpueOI0Atuo86tM6bdRwACHxoAAr9DCVatgkWcyt3sfDYE.png"
+        },
+        "skills": {
+          "categories": [
+            {
+              "name": "新分类1",
+              "skills": [
+                {
+                  "name": "技能1-1",
+                  "level": 1
+                },
+                {
+                  "name": "技能1-2",
+                  "level": 2
+                },
+                {
+                  "name": "技能1-3",
+                  "level": 3
+                },
+                {
+                  "name": "技能1-4",
+                  "level": 4
+                }
+              ]
+            },
+            {
+              "name": "新分类2",
+              "skills": [
+                {
+                  "name": "技能2-1",
+                  "level": 1
+                },
+                {
+                  "name": "技能2-2",
+                  "level": 2
+                },
+                {
+                  "name": "技能2-3",
+                  "level": 3
+                },
+                {
+                  "name": "技能2-4",
+                  "level": 4
+                }
+              ]
+            },
+            {
+              "name": "新分类3",
+              "skills": [
+                {
+                  "name": "技能3-1",
+                  "level": 1
+                },
+                {
+                  "name": "技能3-2",
+                  "level": 2
+                },
+                {
+                  "name": "技能3-3",
+                  "level": 3
+                },
+                {
+                  "name": "技能3-4",
+                  "level": 4
+                }
+              ]
+            },
+            {
+              "name": "新分类4",
+              "skills": [
+                {
+                  "name": "技能4-1",
+                  "level": 1
+                },
+                {
+                  "name": "技能4-2",
+                  "level": 2
+                },
+                {
+                  "name": "技能4-3",
+                  "level": 3
+                },
+                {
+                  "name": "技能4-4",
+                  "level": 4
+                }
+              ]
+            }
+          ]
+        },
+        "experience": [
+          {
+            "company": "Jerry 技术有限公司",
+            "position": "Dream工程师",
+            "period": "2021年5月 - 至今",
+            "description": "负责美好生活日常运维和自我提升的自动化建设。",
+            "achievements": [
+              "客户范围: china、 love、self、friend、family ",
+              "解决数据库问题并提供SOP文档100+ ",
+              "以上项目维护过程中均是技术一号位"
+            ]
+          }
+        ],
+        "projects": [
+          {
+            "title": "Dream项目",
+            "company": "Jerry 技术有限公司",
+            "period": "2021年5月 - 至今",
+            "description": "开发并维护公司核心电商平台，支持千万级用户访问围绕数据库全生命周期开展运维管理工作，涵盖迁移升级、备份恢复、规范建设、高可用保障等多个维度，采用多样化技术手段与标准化流程，确保数据库系统稳定运行，支撑业务高效开展，服务规模涉及数百套数据库及集群。",
+            "technologies": [
+              "MySQL",
+              "Redis"
+            ],
+            "achievements": [
+              "完成500+次分钟级停机窗口的数据库迁移升级操作",
+              "制定100+SOP文档，建立标准化运维与问题处理流程",
+              "开展20+次知识分享活动，提升团队与客户技术能力"
+            ],
+            "coreWork": [
+              {
+                "category": "数据库迁移、升级与归档",
+                "items": [
+                  "跨机房迁移：MySQL采用主从复制技术，Redis借助开源工具Redis Shake，将数据迁移至新机房，严格控制业务切换的停机窗口在分钟级别，累计完成500+次相关操作。",
+                  "热库归档：针对16套MySQL热库设计导出和导入方案，实现向历史库的归档，方案涵盖执行时间优化、数据校验、延迟控制及告警提醒等关键环节。"
+                ]
+              },
+              {
+                "category": "备份恢复方案实施",
+                "items": [
+                  "基于Xtrabackup+Binlog backup+Python SendMail构建MySQL数据库备份恢复方案，涉及Shell与Python脚本开发及平台接口调用。",
+                  "热库归档：针对16套MySQL热通过远程NBU拉取备份集，实现备份状态获取与告警提醒，保障200+数据库的数据安全。设计导出和导入方案，实现向历史库的归档，方案涵盖执行时间优化、数据校验、延迟控制及告警提醒等关键环节。"
+                ]
+              },
+              {
+                "category": "知识沉淀与分享",
+                "items": [
+                  "开展20+次工单复盘、内部分享及客户培训活动，内容涉及日常运维、归档建议等，促进技术经验传播与团队能力提升。",
+                  "根据项目需求合理分配精力，通过任务分发与回收反馈机制，协调团队成员高效协作，保障项目高效运行。"
+                ]
+              }
+            ]
+          }
+        ],
+        "education": [
+          {
+            "school": "中国大学",
+            "degree": "祖国统一",
+            "period": "2014年9月-2018年6月",
+            "description": "主修民富国强，获得优秀毕业生称号。"
+          }
+        ],
+        "footer": {
+          "message": ""
+        }
+      };
+      // 整合完成
+
+      // 转换数据格式以适配页面需求
+      const formattedData = {
+        fullName: dbJsonData.personalInfo.name || '',
+        jobTitle: dbJsonData.personalInfo.title || '',
+        email: dbJsonData.personalInfo.email || '',
+        phone: dbJsonData.personalInfo.phone || '',
+        location: dbJsonData.personalInfo.location || '',
+        avatarUrl: dbJsonData.personalInfo.avatarUrl || '',
+        bio: '',
+        social: {
+          linkedin: dbJsonData.personalInfo.socialLinks.find(link => link.platform === 'linkedin')?.url || '',
+          github: dbJsonData.personalInfo.socialLinks.find(link => link.platform === 'github')?.url || '',
+          blog: dbJsonData.personalInfo.socialLinks.find(link => link.platform === 'blog')?.url || ''
+        },
+        skills: dbJsonData.skills.categories.map((category, categoryIndex) => ({
+          id: `category-${categoryIndex}`,
+          name: category.name,
+          skills: category.skills.map((skill, skillIndex) => ({
+            id: `skill-${categoryIndex}-${skillIndex}`,
+            name: skill.name,
+            level: skill.level * 25 // 将1-4级转换为25-100%
+          }))
+        })),
+        experiences: dbJsonData.experience.map(exp => {
+          // 处理日期范围
+          const [startDate, endDate] = exp.period.split(' - ').map(date => date.trim());
+          
+          return {
+            company: exp.company,
+            position: exp.position,
+            startDate: startDate || '',
+            endDate: endDate || '',
+            location: '',
+            description: exp.description,
+            achievements: exp.achievements ? exp.achievements.join('\n') : ''
+          };
+        }),
+        projects: dbJsonData.projects.map(project => {
+          // 处理日期范围
+          const [startDate, endDate] = project.period.split(' - ').map(date => date.trim());
+          
+          return {
+            title: project.title,
+            company: project.company,
+            startDate: startDate || '',
+            endDate: endDate || '',
+            description: project.description,
+            technologies: project.technologies ? project.technologies.join(', ') : '',
+            achievements: project.achievements ? project.achievements.join('\n') : ''
+          };
+        }),
+        education: dbJsonData.education.map(edu => {
+          // 处理日期范围
+          const [startDate, endDate] = edu.period.split(' - ').map(date => date.trim());
+          
+          return {
+            school: edu.school,
+            degree: edu.degree,
+            startDate: startDate || '',
+            endDate: endDate || '',
+            description: edu.description
+          };
+        })
+      };
+
+      // 保存到 localStorage，这样页面加载时会自动使用这些数据
+      localStorage.setItem('resumeData', JSON.stringify(formattedData));
+      
+      console.log('数据已成功初始化到 localStorage');
+      
+      // 立即应用数据到页面
+      if (typeof DataManager !== 'undefined' && typeof DataManager.loadSavedData === 'function') {
+        // 由于DataManager.loadSavedData是在页面加载时执行的，我们需要手动刷新页面上的元素
+        // 先清除现有工作经历，只保留一个空的
+        const experiencesContainer = DOM.experiencesContainer;
+        if (experiencesContainer) {
+          const firstExperience = experiencesContainer.querySelector('.experience-item');
+          if (firstExperience) {
+            experiencesContainer.innerHTML = '';
+            experiencesContainer.appendChild(firstExperience);
+          }
+        }
+
+        // 更新基本信息
+        const fullNameInput = document.querySelector('#fullName');
+        const jobTitleInput = document.querySelector('#jobTitle');
+        const emailInput = document.querySelector('#email');
+        const phoneInput = document.querySelector('#phone');
+        const locationInput = document.querySelector('#location');
+        const avatarUrlInput = document.querySelector('#avatarUrl');
+        const bioInput = document.querySelector('#bio');
+        const linkedinInput = document.querySelector('#linkedin');
+        const githubInput = document.querySelector('#github');
+        const blogInput = document.querySelector('#blog');
+
+        if (fullNameInput) fullNameInput.value = formattedData.fullName;
+        if (jobTitleInput) jobTitleInput.value = formattedData.jobTitle;
+        if (emailInput) emailInput.value = formattedData.email;
+        if (phoneInput) phoneInput.value = formattedData.phone;
+        if (locationInput) locationInput.value = formattedData.location;
+        if (avatarUrlInput) avatarUrlInput.value = formattedData.avatarUrl;
+        if (bioInput) bioInput.value = formattedData.bio;
+        if (linkedinInput) linkedinInput.value = formattedData.social.linkedin;
+        if (githubInput) githubInput.value = formattedData.social.github;
+        if (blogInput) blogInput.value = formattedData.social.blog;
+
+        // 清空现有技能分类
+        const skillCategoriesContainer = DOM.skillCategoriesContainer;
+        if (skillCategoriesContainer) {
+          const firstCategory = skillCategoriesContainer.querySelector('.skill-category');
+          if (firstCategory) {
+            skillCategoriesContainer.innerHTML = '';
+            skillCategoriesContainer.appendChild(firstCategory);
+          }
+        }
+
+        // 创建通用数据加载函数，支持普通字段和计算字段
+        const loadDataItems = (data, itemSelector, addButtonSelector, fieldMappings) => {
+          if (!data || data.length === 0) return;
+          
+          data.forEach((item, index) => {
+            let element;
+            
+            if (index === 0) {
+              // 使用第一个已存在的元素
+              element = document.querySelector(itemSelector);
+            } else {
+              // 添加新的元素
+              const addBtn = document.querySelector(addButtonSelector);
+              if (addBtn) {
+                addBtn.click();
+                const elements = document.querySelectorAll(itemSelector);
+                element = elements[elements.length - 1];
+              }
+            }
+
+            if (element) {
+              // 根据字段映射填充数据
+              Object.keys(fieldMappings).forEach(fieldName => {
+                const mapping = fieldMappings[fieldName];
+                const selector = typeof mapping === 'string' ? mapping : mapping.selector;
+                let value = '';
+                
+                if (typeof mapping === 'function') {
+                  // 计算字段
+                  value = mapping(item);
+                } else if (mapping.getValue) {
+                  value = mapping.getValue(item);
+                } else {
+                  // 普通字段
+                  value = item[fieldName] || '';
+                }
+                
+                if (element.querySelector(selector)) {
+                  element.querySelector(selector).value = value;
+                }
+              });
+            }
+          });
+        };
+        
+        // 加载工作经历
+        if (formattedData.experiences && formattedData.experiences.length > 0) {
+          // 工作经历字段映射
+          const experienceFieldMappings = {
+            company: '.exp-company',
+            position: '.exp-position',
+            startDate: '.exp-start',
+            endDate: '.exp-end',
+            location: '.exp-location',
+            description: '.exp-description',
+            achievements: '.exp-achievements'
+          };
+          
+          loadDataItems(formattedData.experiences, '.experience-item', '.add-experience', experienceFieldMappings);
+        }
+
+        // 加载项目经验数据
+        if (formattedData.projects && formattedData.projects.length > 0) {
+          // 项目经验字段映射，支持计算字段
+          const projectFieldMappings = {
+            title: '.project-title',
+            company: '.project-company',
+            period: (item) => item.startDate && item.endDate 
+              ? `${item.startDate} - ${item.endDate}` 
+              : (item.startDate || item.endDate || ''),
+            description: '.project-description',
+            technologies: '.project-technologies',
+            achievements: '.project-achievements'
+          };
+          
+          loadDataItems(formattedData.projects, '.project-item', '#addProject', projectFieldMappings);
+        }
+
+        // 加载教育背景数据
+        if (formattedData.education && formattedData.education.length > 0) {
+          // 教育背景字段映射，支持计算字段
+          const educationFieldMappings = {
+            school: '.education-school',
+            degree: '.education-degree',
+            period: (item) => item.startDate && item.endDate 
+              ? `${item.startDate} - ${item.endDate}` 
+              : (item.startDate || item.endDate || ''),
+            description: '.education-description'
+          };
+          
+          loadDataItems(formattedData.education, '.education-item', '#addEducation', educationFieldMappings);
+        }
+
+        // 加载技能分类和技能
+        if (formattedData.skills && formattedData.skills.length > 0) {
+          // 技能分类的字段映射
+          const categoryFieldMappings = {
+            'name': '.category-name'
+          };
+          
+          // 技能项的字段映射
+          const skillFieldMappings = {
+            'name': '.skill-name',
+            'level': ['.skill-level', '.skill-level-value']
+          };
+          
+          // 处理技能项的加载函数
+          const loadSkillItems = (categoryElement, skills) => {
+            if (!categoryElement || !skills || !skills.length) return;
+            
+            const skillsList = categoryElement.querySelector('.skills-list');
+            if (!skillsList) return;
+            
+            // 清空现有技能项，只保留第一个
+            const firstSkill = skillsList.querySelector('.skill-item');
+            if (firstSkill) {
+              skillsList.innerHTML = '';
+              skillsList.appendChild(firstSkill);
+            }
+            
+            // 加载技能项
+            skills.forEach((skill, skillIndex) => {
+              let skillElement;
+              
+              if (skillIndex === 0) {
+                // 使用第一个已存在的技能项
+                skillElement = categoryElement.querySelector('.skill-item');
+              } else {
+                // 添加新的技能项
+                const addSkillBtn = categoryElement.querySelector('.add-skill');
+                if (addSkillBtn) {
+                  addSkillBtn.click();
+                  const skills = categoryElement.querySelectorAll('.skill-item');
+                  skillElement = skills[skills.length - 1];
+                }
+              }
+              
+              if (skillElement) {
+                // 填充技能项数据
+                Object.entries(skillFieldMappings).forEach(([key, selectors]) => {
+                  if (!Array.isArray(selectors)) {
+                    selectors = [selectors];
+                  }
+                  
+                  selectors.forEach(selector => {
+                    const element = skillElement.querySelector(selector);
+                    if (element) {
+                      if (element.tagName.toLowerCase() === 'input') {
+                        element.value = skill[key] || '';
+                      } else {
+                        element.textContent = `${skill[key] || ''}`;
+                      }
+                    }
+                  });
+                });
+              }
+            });
+          };
+          
+          // 使用loadDataItems加载技能分类，并在回调中加载技能项
+          loadDataItems(
+            formattedData.skills,
+            '.skill-category',
+            skillCategoriesContainer,
+            categoryFieldMappings,
+            DOM.addSkillCategoryBtn,
+            (categoryElement, category) => {
+              if (category.skills && category.skills.length > 0) {
+                loadSkillItems(categoryElement, category.skills);
+              }
+            }
+          );
+        }
+
+        // 更新预览
+        if (window.updateBasicInfoPreview) {
+          updateBasicInfoPreview();
+        }
+        
+        if (window.updateSocialLinksPreview) {
+          updateSocialLinksPreview();
+        }
+        
+        if (window.ExperienceManager && window.ExperienceManager.updateExperiencePreviews) {
+          ExperienceManager.updateExperiencePreviews();
+        }
+        
+        if (window.SkillManager && window.SkillManager.updateSkillsPreview) {
+          SkillManager.updateSkillsPreview();
+        }
+
+        // 更新项目经验预览
+        if (window.ProjectManager && window.ProjectManager.updateProjectPreviews) {
+          ProjectManager.updateProjectPreviews();
+        }
+
+        // 更新教育背景预览
+        if (window.EducationManager && window.EducationManager.updateEducationPreviews) {
+          EducationManager.updateEducationPreviews();
+        }
+
+        console.log('页面数据已成功更新');
+      } else {
+        console.log('请刷新页面以查看更新后的数据');
+      }
+    } catch (error) {
+      console.error('更新数据时出错:', error);
+    }
+  });
+</script>
+
+</body>
+</html>
